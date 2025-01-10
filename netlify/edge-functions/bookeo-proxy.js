@@ -7,8 +7,8 @@ export default async (request, context) => {
     // 1. Parse the incoming request URL to extract any query parameters.
     //    For example: https://<your-site>/bookeo-proxy?apiKey=XXX&secretKey=YYY
     const { searchParams } = new URL(request.url);
-    const apiKey = searchParams.get("apiKey") || context.env.BOOKEO_API_KEY;
-    const secretKey = searchParams.get("secretKey") || context.env.BOOKEO_SECRET_KEY;
+    const apiKey = context.env.BOOKEO_API_KEY;
+    const secretKey = context.env.BOOKEO_SECRET_KEY;
 
     // 2. Construct the Bookeo API URL using the keys
     const bookeoUrl = `https://api.bookeo.com/v2/customers?apiKey=${apiKey}&secretKey=${secretKey}`;
