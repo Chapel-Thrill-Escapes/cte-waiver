@@ -1,8 +1,6 @@
 [build]
   publish = ".next"
   command = "npm run build"
-[edge_functions]
-  # You can add multiple edge_functions entries if needed
-  [[edge_functions]]
+[[edge_functions]]
   function = "bookeo-proxy"
   path = "/bookeo-proxy"
