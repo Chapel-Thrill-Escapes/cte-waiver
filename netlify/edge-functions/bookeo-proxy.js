@@ -21,7 +21,7 @@ export default async (request, context) => {
     const bookingDateStr = searchParams.get("bookingDate");
     const startDate = new Date(bookingDateStr);
     startDate.setDate(startDate.getDate() - 5); // Adding buffer of 5 days
-    const endDate = new Date(startDate);
+    const endDate = new Date(bookingDateStr);
     endDate.setDate(endDate.getDate() + 5); // Adding buffer of 5 days
     const startTime = startDate.toISOString();
     const endTime = endDate.toISOString();
