@@ -4,3 +4,4 @@
 [[edge_functions]]
   function = "bookeo-proxy"
   path = "/bookeo-proxy"
+  environment_variables = ["BOOKEO_API_KEY", "BOOKEO_SECRET_KEY"]
