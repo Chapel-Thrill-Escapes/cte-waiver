@@ -17,10 +17,19 @@ export default async (request, context) => {
     }
 
     // 2. Make your Bookeo request
+    const { searchParams } = new URL(request.url);
+    const bookingDateStr = searchParams.get("bookingDate");
+    const startDate = new Date(bookingDateStr);
+    startDate.setDate(startDate.getDate() - 5); // Adding buffer of 5 days
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 5); // Adding buffer of 5 days
+    const startTime = startDate.toISOString();
+    const endTime = endDate.toISOString();
+
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
-    const url = `https://api.bookeo.com/v2/customers?apiKey=${apiKey}&secretKey=${secretKey}`;
+    const url = `https://api.bookeo.com/v2/bookings?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true&startTime=${startTime}&endTime=${endTime}`;
     const response = await fetch(url);
 
     if (!response.ok) {
