@@ -22,7 +22,7 @@ export default async (request, context) => {
     }
     
     // 1. Parse incoming data (assuming JSON in the request body)
-    const data = JSON.parse(request.body || '{}');
+    const data = await request.json();
 
     //  Loop over JSON and create variables (or store them in an object)
     const { publicKey, bookingNumber, customerId } = data;
