@@ -10,49 +10,69 @@ import crypto from 'node:crypto';
  */
 export default async (request, context) => {
   try {
+    // 1. Handle OPTIONS request (the "preflight" check):
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
+    }
+    
     // 1. Parse incoming data (assuming JSON in the request body)
-    const body = await request.json();
+    const data = JSON.parse(request.body || '{}');
 
-    // Example of extracting variables from the passed-in array/object
-    // (Adjust to match how you actually send them from client-side)
-    const {
-      publicKey,      // Public key string that we need to sign
-      bookingNumber,  // The booking number for Bookeo
-      customerId,     // Customer's ID associated with the booking
-      ...rest         // Any other variables you want to forward to Google
-    } = body;
+    //  Loop over JSON and create variables (or store them in an object)
+    const { publicKey, bookingNumber, customerId, ...rest } = data;
+    for (const [key, value] of Object.entries(data)) {
+      console.log(`Key: ${key}, Value: ${value}`);
+    }
 
     // 2. Sign the public key using DSA (with a private key from env var or secure storage)
     //
     const signer = crypto.createSign('sha256');
-    signer.update(publicKey);
-    const signature = signer.sign(Netlify.env.get("DSA_PRIVATE_KEY"), 'base64');
+    signer.update(publicKey || '');
+    const signatureID = signer.sign(Netlify.env.get("DSA_PRIVATE_KEY"), 'base64');
 
-    // 3. Send a PUT request to Bookeo's API to update a booking's custom field.
-    //    You likely need your Bookeo apiKey and secretKey in the query string or headers.
-    //    For example: https://api.bookeo.com/v2/bookings/{bookingNumber}?apiKey=XXXX&secretKey=YYYY
-    //
-    //    The exact field updates depend on your Bookeo configuration.
-    //    Below is a simplistic example, including a “strong value” in a custom field.
-    const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${process.env.BOOKEO_API_KEY}&secretKey=${process.env.BOOKEO_SECRET_KEY}`;
-
-    const bookeoResponse = await fetch(bookeoUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
+    // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
+    const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${Netlify.env.get("BOOKEO_API_KEY")}&secretKey=${Netlify.env.get("BOOKEO_SECRET_KEY")}`;
+    const bookeoPayload = {
+      customer: {
+        id: customerId
       },
-      body: JSON.stringify({
-        customer: {
-          id: customerId
-        },
-        // Example of custom fields. Adjust as needed per your Bookeo config.
         customFields: {
-          customStrongValue: "myStrongValue"
-        }
-      })
+          "id": "RATUN9",
+          "name": "Waiver Confirmation Number",
+          "value": signatureID,
+      }
+    };
+    
+    const bookeoResp = await fetch(bookeoUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookeoPayload)
     });
 
-    const bookeoData = await bookeoResponse.json();
+    if (!bookeoResp.ok) {
+      return new Response(
+        JSON.stringify({ error: `Bookeo request failed: ${bookeoResp.statusText}` }),
+        {
+          status: bookeoResp.status,
+          headers: {
+            'Content-Type': 'application/json',
+            // Important: set CORS headers even for error responses
+            'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        }
+      );
+    }
+    
+    const bookeoResult = await bookeoResp.json();
 
     // 4. Make a POST request (XHR-like) to a Google Form or Web App.  
     //    We’ll send the entire original body (including publicKey, bookingNumber, etc.)
@@ -60,42 +80,67 @@ export default async (request, context) => {
     //
     //    The form data will be appended from your `body` object.
     //    Make sure your Google form/web app is expecting these fields.
-    const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g. "https://script.google.com/macros/s/..."
-    
-    // Build URL-encoded form data
+    const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g. https://script.google.com/macros/s/...
     const formData = new URLSearchParams();
-    Object.entries(body).forEach(([key, value]) => {
+    Object.entries(data).forEach(([key, value]) => {
       formData.append(key, String(value));
     });
 
-    const googleResponse = await fetch(googleWebAppUrl, {
+    const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: formData
+      body: formData.toString()
     });
 
-    const googleData = await googleResponse.text();  // or json() if your web app returns JSON
+    if (!googleResp.ok) {
+      return new Response(
+        JSON.stringify({ error: `Bookeo request failed: ${googleResp.statusText}` }),
+        {
+          status: googleResp.status,
+          headers: {
+            'Content-Type': 'application/json',
+            // Important: set CORS headers even for error responses
+            'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        }
+      );
+    }
+    
+    const googleResult = await googleResp.text();  // or json() if your web app returns JSON
 
     // Finally, return a response to the client. Include the signature
     // and any relevant data from Bookeo or Google if desired.
-    const responseBody = {
+    const clientResponseBody = {
       success: true,
-      signature,         // The newly created DSA signature
-      bookeoResult: bookeoData,
-      googleResult: googleData
+      signature,
+      bookeoResult,
+      googleResult
     };
 
-    return new Response(JSON.stringify(responseBody), {
+    // Return with CORS headers
+    return new Response(JSON.stringify(clientResponseBody), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
     });
   } catch (error) {
-    console.error('Error in Edge Function:', error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Error in Netlify function:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+    });
   }
 };
