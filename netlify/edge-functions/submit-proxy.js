@@ -1,13 +1,12 @@
 import crypto from 'node:crypto';
 
-/**
- * An example Netlify Edge Function that:
- * 1. Signs a public key with DSA.
- * 2. Updates a Bookeo booking via PUT.
- * 3. Forwards the received data via POST (x-www-form-urlencoded) to a Google Web App.
- *
- * NOTE: Adjust for your actual Netlify Edge runtime and environment.
- */
+// netlify/edge-functions/submit-proxy.js
+// An Edge Function that: 
+//     1. signs a public key with DSA; and
+//     2. updates a Bookeo booking via PUT; and 
+//     3. forwards the received data via POST (x-www-form-urlencoded) to a Google Web App.
+// Runs in Deno on Netlify's Edge network.
+
 export default async (request, context) => {
   try {
     // 1. Handle OPTIONS request (the "preflight" check):
@@ -26,7 +25,7 @@ export default async (request, context) => {
     const data = JSON.parse(request.body || '{}');
 
     //  Loop over JSON and create variables (or store them in an object)
-    const { publicKey, bookingNumber, customerId, ...rest } = data;
+    const { publicKey, bookingNumber, customerId } = data;
     for (const [key, value] of Object.entries(data)) {
       console.log(`Key: ${key}, Value: ${value}`);
     }
