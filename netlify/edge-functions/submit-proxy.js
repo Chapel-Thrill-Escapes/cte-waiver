@@ -24,11 +24,9 @@ export default async (request, context) => {
 
     // 2. Sign the public key using DSA (with a private key from env var or secure storage)
     //
-    // Make sure process.env.DSA_PRIVATE_KEY holds your DSA private key in PEM format
-    // e.g. "-----BEGIN DSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA..."
     const signer = crypto.createSign('sha256');
     signer.update(publicKey);
-    const signature = signer.sign(process.env.DSA_PRIVATE_KEY, 'base64');
+    const signature = signer.sign(Netlify.env.get("DSA_PRIVATE_KEY"), 'base64');
 
     // 3. Send a PUT request to Bookeo's API to update a booking's custom field.
     //    You likely need your Bookeo apiKey and secretKey in the query string or headers.
