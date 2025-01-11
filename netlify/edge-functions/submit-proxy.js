@@ -32,8 +32,8 @@ export default async (request, context) => {
 
     // 2. Sign the public key using DSA (with a private key from env var or secure storage)
     //
-    const signer = crypto.createSign('sha256');
-    signer.update(publicKey || '');
+    const signer = crypto.createSign('RSA-SHA256'); 
+    signer.update(publicKey || ''); 
     const signatureID = signer.sign(Netlify.env.get("DSA_PRIVATE_KEY"), 'base64');
 
     // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
