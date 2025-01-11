@@ -34,7 +34,9 @@ export default async (request, context) => {
     //
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
-    const signatureID = signer.sign(Netlify.env.get("DSA_PRIVATE_KEY"), 'base64');
+    const privateKey = Netlify.env.get("RSA_PRIVATE_KEY");
+    console.log('Private key from env:', privateKey);
+    const signatureID = signer.sign(privateKey, 'base64');
 
     // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
     const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${Netlify.env.get("BOOKEO_API_KEY")}&secretKey=${Netlify.env.get("BOOKEO_SECRET_KEY")}`;
