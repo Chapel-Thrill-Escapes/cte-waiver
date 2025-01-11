@@ -3,20 +3,35 @@
 // Runs in Deno on Netlify's Edge network.
 
 export default async (request, context) => {
-  try {
-    // 1. Handle OPTIONS request (the "preflight" check):
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      });
-    }
 
-    // 2. Make your Bookeo request
+  // Get the Origin header from the request
+  const originHeader = request.headers.get("origin") || "";
+
+  // If it doesn’t match the CTE domain, block the request
+  const allowedOrigin = "https://www.chapelthrillescapes.com";
+  if (originHeader !== allowedOrigin) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  // If the origin is allowed, add CORS response headers
+  //    so the browser knows you allow that origin:
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  };
+
+  // Handle OPTIONS (the preflight) if relevant
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders
+    });
+  }
+  
+  try {
+
+    // Make Bookeo request to bookings data
     const { searchParams } = new URL(request.url);
     const bookingDateStr = searchParams.get("bookingDate");
     const startDate = new Date(bookingDateStr);
@@ -48,7 +63,7 @@ export default async (request, context) => {
       );
     }
 
-    // 3. If successful, return data with CORS headers
+    // If successful, return data with CORS headers
     const data = await response.json();
     return new Response(JSON.stringify(data), {
       status: 200,
@@ -60,7 +75,7 @@ export default async (request, context) => {
       },
     });
   } catch (error) {
-    // 4. Catch any runtime errors and set CORS headers
+    // Catch any runtime errors and set CORS headers
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: {
