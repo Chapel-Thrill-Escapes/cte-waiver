@@ -9,19 +9,33 @@ import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base
 // Runs in Deno on Netlify's Edge network.
 
 export default async (request, context) => {
-  try {
-    // 1. Handle OPTIONS request (the "preflight" check):
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      });
-    }
-    
+
+ // Get the Origin header from the request
+  const originHeader = request.headers.get("origin") || "";
+
+  // If it doesn’t match the CTE domain, block the request as a security measure 
+  const allowedOrigin = "https://www.chapelthrillescapes.com";
+  if (originHeader !== allowedOrigin) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  // If the origin is allowed, add CORS response headers
+  //    so the browser knows you allow that origin:
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  };
+
+  // Handle OPTIONS (the preflight) if relevant
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders
+    });
+  }
+  
+  try {    
     // 1. Parse incoming data (assuming JSON in the request body)
     const data = await request.json();
 
@@ -73,10 +87,12 @@ export default async (request, context) => {
       }
     });
 
+    console.log(`Put Request Body: ${bookingData}`)
+
     // 6. PUT the updated booking back to Bookeo
     const putResponse = await fetch(url, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      // headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bookingData)
     });
 
