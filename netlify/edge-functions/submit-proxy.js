@@ -35,60 +35,58 @@ export default async (request, context) => {
     //
     const rawB64 = Netlify.env.get("RSA_PRIVATE_KEY");
     const privateKey = new TextDecoder().decode(b64decode(rawB64)); // This is now the full PEM with newlines
-    console.log("Decoded Key:", privateKey);
 
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
     const signatureID = signer.sign(privateKey, 'base64');
-    console.log("Signed Key:", signatureID);
+    // console.log("Signed Key:", signatureID);
 
     // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
-    const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${Netlify.env.get("BOOKEO_API_KEY")}&secretKey=${Netlify.env.get("BOOKEO_SECRET_KEY")}&expandParticipants=true`;
-    const participantUpdate = {
-      personDetails: {
-        id: customerId,
-        customFields: [
-          {
-            id: "RATUN9",
-            "name": "Waiver Confirmation Number",
-            value: signatureID
-          }
-        ]
-      }
-    };
-    // The minimal PUT body
-    const putBody = {
-      participants: {
-        details: [participantUpdate]
-      }
-    };
+        // Make Bookeo request to bookings data
+    const apiKey = Netlify.env.get("BOOKEO_API_KEY");
+    const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
-    
-    const bookeoResp = await fetch(bookeoUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(putBody),
+    const url = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;    
+    const getResponse = await fetch(url);
+    if (!getResponse.ok) {
+      throw new Error(`GET booking failed: ${getResponse.status} ${getResponse.statusText}`);
+    }
+    const bookingData = await getResponse.json();
+
+    // 4. Find the participant with matching customerId
+    const participants = bookingData?.participants?.details;
+    if (!participants || !Array.isArray(participants)) {
+      throw new Error('Participants details not found in booking data');
+    }
+
+    participants.forEach((participant) => {
+      const pDetails = participant?.personDetails;
+      if (pDetails && pDetails.customerId === customerId) {
+        // 5. Update the custom field RATUN9
+        if (Array.isArray(pDetails.customFields)) {
+          pDetails.customFields.forEach((cf) => {
+            if (cf.id === 'RATUN9') {
+              cf.value = publicKey;
+            }
+          });
+        }
+      }
     });
 
-    if (!bookeoResp.ok) {
-      return new Response(
-        JSON.stringify({ error: `Bookeo request failed: ${bookeoResp.statusText}` }),
-        {
-          status: bookeoResp.status,
-          headers: {
-            'Content-Type': 'application/json',
-            // Important: set CORS headers even for error responses
-            'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        }
-      );
-    }
-    
-    const bookeoResult = await bookeoResp.json();
+    // 6. PUT the updated booking back to Bookeo
+    const putResponse = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingData)
+    });
 
-    // 4. Make a POST request (XHR-like) to a Google Form or Web App.  
+    if (!putResponse.ok) {
+      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText}`);
+    }
+
+    const updatedBooking = await putResponse.json();
+
+    // 7. Make a POST request (XHR-like) to a Google Form or Web App.  
     //    We’ll send the entire original body (including publicKey, bookingNumber, etc.)
     //    as application/x-www-form-urlencoded. 
     //
