@@ -60,45 +60,76 @@ export default async (request, context) => {
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
-    const url = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;    
-    const getResponse = await fetch(url);
+    const baseUrl = 'https://api.bookeo.com/v2/bookings';
+    const getUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;   
+    const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
       throw new Error(`GET booking failed: ${getResponse.status} ${getResponse.statusText}`);
     }
-    const bookingData = await getResponse.json();
+    const fullBooking = await getResponse.json();
 
-    // Find the participant with matching customerId
-    const participants = bookingData?.participants?.details;
-    if (!participants || !Array.isArray(participants)) {
-      throw new Error('Participants details not found in booking data');
-    }
+    /// Build the JSON structure we want to PUT,
+    //    copying only the fields Bookeo *requires* or *allows* for updates.
+    // 
+    const updatePayload = {
+      bookingNumber: fullBooking.bookingNumber,  // not always needed, but okay
+      productId: fullBooking.productId,          // required
+      eventId: fullBooking.eventId,             // or startTime/endTime if flexibleTime
+      // If it's a flexibleTime product, you'll likely need:
+      // startTime: fullBooking.startTime,
+      // endTime: fullBooking.endTime,
+      participants: {
+        numbers: fullBooking.participants?.numbers || [], 
+        // We'll keep all "numbers" so we don't break the booking's participant counts
+        details: []
+      }
+      // Possibly other fields if Bookeo requires them:
+      // e.g. firstCourseEnrolledEventId, dropinCourseEnrolledEventId, ...
+    };
 
-    participants.forEach((participant) => {
-      const pDetails = participant?.personDetails;
-      if (pDetails && pDetails.customerId === customerId) {
-        // Update the custom field RATUN9
-        if (Array.isArray(pDetails.customFields)) {
-          pDetails.customFields.forEach((cf) => {
+    // 3) For participants.details, either:
+    //    a) Copy ALL participants, modify the target's customField
+    //    OR
+    //    b) Insert only the participant you want to update (if Bookeo supports partial details).
+    // Here, let's copy all participants, then update the target.
+    const allDetails = fullBooking?.participants?.details || [];
+    const updatedDetails = allDetails.map((p) => {
+      const personDetails = p.personDetails || {};
+      // if this participant's customerId matches targetCustomerId, update the custom field
+      if (personDetails.customerId === customerId) {
+        // update RATUN9
+        if (Array.isArray(personDetails.customFields)) {
+          personDetails.customFields = personDetails.customFields.map((cf) => {
             if (cf.id === 'RATUN9') {
-              cf.value = publicKey;
+              return { ...cf, value: publicKey };
             }
+            return cf;
           });
         }
       }
+      return {
+        // required fields
+        personId: p.personId,
+        peopleCategoryId: p.peopleCategoryId,
+        categoryIndex: p.categoryIndex,
+        // if p.personId === 'PNEW', you'd have to provide personDetails with mandatory fields
+        personDetails
+      };
     });
 
-
-    console.log(`Put Request Body: ${JSON.stringify(participants)}`)
+    updatePayload.participants.details = updatedDetails;
+    console.log(`Put Request Body: ${JSON.stringify(updatePayload)}`)
 
     // 6. PUT the updated booking back to Bookeo
-    const putResponse = await fetch(url, {
+    const putUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    const putResponse = await fetch(putUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(participants)
+      body: JSON.stringify(updatePayload)
     });
 
     if (!putResponse.ok) {
-      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} ${putResponse} `);
+      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} ${JSON.stringify(putResponse)} `);
     }
 
     const updatedBooking = await putResponse.json();
