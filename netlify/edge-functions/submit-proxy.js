@@ -87,7 +87,7 @@ export default async (request, context) => {
       }
     });
 
-    console.log(`Put Request Body: ${bookingData}`)
+    console.log(`Put Request Body: ${JSON.stringify(bookingData)}`)
 
     // 6. PUT the updated booking back to Bookeo
     const putResponse = await fetch(url, {
