@@ -72,9 +72,9 @@ export default async (request, context) => {
     //    copying only the fields Bookeo *requires* or *allows* for updates.
     // 
     const updatePayload = {
-      bookingNumber: fullBooking.bookingNumber,  // not always needed, but okay
+      // bookingNumber: fullBooking.bookingNumber,  // not always needed, but okay
       productId: fullBooking.productId,          // required
-      eventId: fullBooking.eventId,             // or startTime/endTime if flexibleTime
+      // eventId: fullBooking.eventId,             // or startTime/endTime if flexibleTime
       // If it's a flexibleTime product, you'll likely need:
       // startTime: fullBooking.startTime,
       // endTime: fullBooking.endTime,
@@ -97,6 +97,8 @@ export default async (request, context) => {
       const personDetails = p.personDetails || {};
       // if this participant's customerId matches targetCustomerId, update the custom field
       if (personDetails.customerId === customerId) {
+       console.log("Match found!")
+       console.log(personDetails.customerId)
         // update RATUN9
         if (Array.isArray(personDetails.customFields)) {
           personDetails.customFields = personDetails.customFields.map((cf) => {
@@ -129,7 +131,7 @@ export default async (request, context) => {
     });
 
     if (!putResponse.ok) {
-      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} ${JSON.stringify(putResponse)} `);
+      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} `);
     }
 
     const updatedBooking = await putResponse.json();
