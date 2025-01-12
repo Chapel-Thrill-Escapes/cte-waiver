@@ -68,32 +68,33 @@ export default async (request, context) => {
     const bookingData = await getResponse.json();
 
     // 4. Find the participant with matching customerId
-    const participants = bookingData?.participants?.details;
-    if (!participants || !Array.isArray(participants)) {
-      throw new Error('Participants details not found in booking data');
+    const participantUpdate = 
+   {
+     "participants": {
+       "details": [
+         {
+           "personDetails": {
+             "customerId": "3151WNFAH918DF281CCE7",
+             "id": "3151WNFAH918DF281CCE7",
+             "customFields": [
+               {
+                 "id": "RATUN9",
+                 "value": "XYZ123"
+               }
+             ]
+           }
+         }
+       ]
+     }
     }
 
-    participants.forEach((participant) => {
-      const pDetails = participant?.personDetails;
-      if (pDetails && pDetails.customerId === customerId) {
-        // 5. Update the custom field RATUN9
-        if (Array.isArray(pDetails.customFields)) {
-          pDetails.customFields.forEach((cf) => {
-            if (cf.id === 'RATUN9') {
-              cf.value = publicKey;
-            }
-          });
-        }
-      }
-    });
-
-    console.log(`Put Request Body: ${JSON.stringify(bookingData)}`)
+    console.log(`Put Request Body: ${JSON.stringify(participantUpdate)}`)
 
     // 6. PUT the updated booking back to Bookeo
     const putResponse = await fetch(url, {
       method: 'PUT',
-      // headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingData)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(participantUpdate)
     });
 
     if (!putResponse.ok) {
