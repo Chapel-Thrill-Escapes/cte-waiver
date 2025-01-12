@@ -40,24 +40,34 @@ export default async (request, context) => {
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
     const signatureID = signer.sign(privateKey, 'base64');
+    console.log("Signed Key:", signatureID);
 
     // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
-    const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${Netlify.env.get("BOOKEO_API_KEY")}&secretKey=${Netlify.env.get("BOOKEO_SECRET_KEY")}`;
-    const bookeoPayload = {
-      customer: {
-        id: customerId
-      },
-        customFields: {
-          "id": "RATUN9",
-          "name": "Waiver Confirmation Number",
-          "value": signatureID,
+    const bookeoUrl = `https://api.bookeo.com/v2/bookings/${bookingNumber}?apiKey=${Netlify.env.get("BOOKEO_API_KEY")}&secretKey=${Netlify.env.get("BOOKEO_SECRET_KEY")}&expandParticipants=true`;
+    const participantUpdate = {
+      personDetails: {
+        id: customerId,
+        customFields: [
+          {
+            id: "RATUN9",
+            "name": "Waiver Confirmation Number",
+            value: signatureID
+          }
+        ]
       }
     };
+    // The minimal PUT body
+    const putBody = {
+      participants: {
+        details: [participantUpdate]
+      }
+    };
+
     
     const bookeoResp = await fetch(bookeoUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookeoPayload)
+      body: JSON.stringify(putBody),
     });
 
     if (!bookeoResp.ok) {
