@@ -32,10 +32,13 @@ export default async (request, context) => {
 
     // 2. Sign the public key using DSA (with a private key from env var or secure storage)
     //
+    import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base64.ts";
+    const rawB64 = Netlify.env.get("RSA_PRIVATE_KEY");
+    const privateKey = new TextDecoder().decode(b64decode(rawB64)); // This is now the full PEM with newlines
+    console.log("Decoded Key:", privateKey);
+
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
-    const privateKey = Netlify.env.get("RSA_PRIVATE_KEY");
-    console.log('Private key from env:', privateKey);
     const signatureID = signer.sign(privateKey, 'base64');
 
     // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
