@@ -96,9 +96,9 @@ export default async (request, context) => {
     const updatedDetails = allDetails.map((p) => {
       const personDetails = p.personDetails || {};
       // if this participant's customerId matches targetCustomerId, update the custom field
-      if (personDetails.customerId === customerId) {
+      if (personDetails.id === customerId) {
        console.log("Match found!")
-       console.log(personDetails.customerId)
+       console.log(personDetails.id)
         // update RATUN9
         if (Array.isArray(personDetails.customFields)) {
           personDetails.customFields = personDetails.customFields.map((cf) => {
@@ -126,8 +126,8 @@ export default async (request, context) => {
     const putUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}`;
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatePayload)
+      //headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatePayload),
     });
 
     if (!putResponse.ok) {
