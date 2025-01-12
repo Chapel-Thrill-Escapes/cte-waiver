@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base64.ts";
 
 // netlify/edge-functions/submit-proxy.js
 // An Edge Function that: 
@@ -32,7 +33,6 @@ export default async (request, context) => {
 
     // 2. Sign the public key using DSA (with a private key from env var or secure storage)
     //
-    import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base64.ts";
     const rawB64 = Netlify.env.get("RSA_PRIVATE_KEY");
     const privateKey = new TextDecoder().decode(b64decode(rawB64)); // This is now the full PEM with newlines
     console.log("Decoded Key:", privateKey);
