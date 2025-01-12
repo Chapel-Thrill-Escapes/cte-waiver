@@ -55,8 +55,8 @@ export default async (request, context) => {
     const signatureID = signer.sign(privateKey, 'base64');
     // console.log("Signed Key:", signatureID);
 
-    // 3. Send a PUT request to Bookeo's API to update the submitting customer's waiver confirmation field
-        // Make Bookeo request to bookings data
+    // 3. Send  requests to Bookeo's API to update the submitting customer's waiver confirmation field
+    // Make Bookeo request to bookings data
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
@@ -72,33 +72,20 @@ export default async (request, context) => {
     //    copying only the fields Bookeo *requires* or *allows* for updates.
     // 
     const updatePayload = {
-      // bookingNumber: fullBooking.bookingNumber,  // not always needed, but okay
-      productId: fullBooking.productId,          // required
-      // eventId: fullBooking.eventId,             // or startTime/endTime if flexibleTime
-      // If it's a flexibleTime product, you'll likely need:
-      // startTime: fullBooking.startTime,
-      // endTime: fullBooking.endTime,
       participants: {
         numbers: fullBooking.participants?.numbers || [], 
         // We'll keep all "numbers" so we don't break the booking's participant counts
         details: []
-      }
-      // Possibly other fields if Bookeo requires them:
-      // e.g. firstCourseEnrolledEventId, dropinCourseEnrolledEventId, ...
+      },
+      productId: fullBooking.productId,          // required
     };
 
-    // 3) For participants.details, either:
-    //    a) Copy ALL participants, modify the target's customField
-    //    OR
-    //    b) Insert only the participant you want to update (if Bookeo supports partial details).
-    // Here, let's copy all participants, then update the target.
+    // 3 For participants.details,
     const allDetails = fullBooking?.participants?.details || [];
     const updatedDetails = allDetails.map((p) => {
       const personDetails = p.personDetails || {};
       // if this participant's customerId matches targetCustomerId, update the custom field
       if (personDetails.id === customerId) {
-       console.log("Match found!")
-       console.log(personDetails.id)
         // update RATUN9
         if (Array.isArray(personDetails.customFields)) {
           personDetails.customFields = personDetails.customFields.map((cf) => {
@@ -123,15 +110,15 @@ export default async (request, context) => {
     console.log(`Put Request Body: ${JSON.stringify(updatePayload)}`)
 
     // 6. PUT the updated booking back to Bookeo
-    const putUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    const putUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
-      //headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatePayload),
     });
 
     if (!putResponse.ok) {
-      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} `);
+      throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} ${putResponse.message} `);
     }
 
     const updatedBooking = await putResponse.json();
