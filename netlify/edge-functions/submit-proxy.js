@@ -62,10 +62,13 @@ export default async (request, context) => {
 
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
-    if isParticipant === 'true' {
+    let putUrl;
+    if (isParticipant === 'true') {
      getUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     } else {
      getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     }
     const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
@@ -88,12 +91,6 @@ export default async (request, context) => {
     console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
 
     // 6. PUT the updated booking back to Bookeo
-    let putUrl;
-    if isParticipant === 'true' {
-     putUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
-    } else {
-     putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
-    }
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
