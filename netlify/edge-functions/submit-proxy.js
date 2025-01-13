@@ -74,12 +74,13 @@ export default async (request, context) => {
     if (!getResponse.ok) {
       throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
     }
-    const fullCustomer = await getResponse.json();
+    const customerData = await getResponse.json();
 
     /// Build the JSON structure for PUT,
-    let customerData = JSON.parse(fullCustomer);
-    const waiverField = customerData.customFields.find(field => field.id === "RATUN9");
-    if (targetField) {
+    const waiverField = customerData.customFields.find(
+    (field: { id: string }) => field.id === "RATUN9"
+    );
+    if (waiverField) {
     waiverField.value = publicKey;
     } else {
      customerData.customFields.push({
