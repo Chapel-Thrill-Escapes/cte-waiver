@@ -40,7 +40,7 @@ export default async (request, context) => {
     const data = await request.json();
 
     //  Loop over JSON and create variables (or store them in an object)
-    const { publicKey, bookingNumber, customerId } = data;
+    const { publicKey, Id, customerId, isParticipant } = data;
     for (const [key, value] of Object.entries(data)) {
       console.log(`Key: ${key}, Value: ${value}`);
     }
@@ -60,61 +60,44 @@ export default async (request, context) => {
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
-    const baseUrl = 'https://api.bookeo.com/v2/bookings';
-    const getUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;   
+    const baseUrl = 'https://api.bookeo.com/v2/customers';
+    let getUrl;
+    if isParticipant === 'true' {
+     getUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    } else {
+     getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    }
     const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
-      throw new Error(`GET booking failed: ${getResponse.status} ${getResponse.statusText}`);
+      throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
     }
-    const fullBooking = await getResponse.json();
+    const fullCustomer = await getResponse.json();
 
-    /// Build the JSON structure we want to PUT,
-    //    copying only the fields Bookeo *requires* or *allows* for updates.
-    // 
-    const updatePayload = {
-      participants: {
-        numbers: fullBooking.participants?.numbers || [], 
-        // We'll keep all "numbers" so we don't break the booking's participant counts
-        details: []
-      },
-      productId: fullBooking.productId,          // required
-    };
-
-    // 3 For participants.details,
-    const allDetails = fullBooking?.participants?.details || [];
-    const updatedDetails = allDetails.map((p) => {
-      const personDetails = p.personDetails || {};
-      // if this participant's customerId matches targetCustomerId, update the custom field
-      if (personDetails.id === customerId) {
-        // update RATUN9
-        if (Array.isArray(personDetails.customFields)) {
-          personDetails.customFields = personDetails.customFields.map((cf) => {
-            if (cf.id === 'RATUN9') {
-              return { ...cf, value: publicKey };
-            }
-            return cf;
-          });
-        }
-      }
-      return {
-        // required fields
-        personId: p.personId,
-        peopleCategoryId: p.peopleCategoryId,
-        categoryIndex: p.categoryIndex,
-        // if p.personId === 'PNEW', you'd have to provide personDetails with mandatory fields
-        personDetails
-      };
-    });
-
-    updatePayload.participants.details = updatedDetails;
-    console.log(`Put Request Body: ${JSON.stringify(updatePayload)}`)
+    /// Build the JSON structure for PUT,
+    let customerData = JSON.parse(fullCustomer);
+    const waiverField = customerData.customFields.find(field => field.id === "RATUN9");
+    if (targetField) {
+    waiverField.value = publicKey;
+    } else {
+     customerData.customFields.push({
+      id: "RATUN9",
+      value: publicKey
+     });
+    }
+   
+    console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
 
     // 6. PUT the updated booking back to Bookeo
-    const putUrl = `${baseUrl}/${bookingNumber}?apiKey=${apiKey}&secretKey=${secretKey}&expandParticipants=true`;
+    let putUrl;
+    if isParticipant === 'true' {
+     putUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+    } else {
+     putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+    }
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updatePayload),
+      body: JSON.stringify(customerData),
     });
 
     if (!putResponse.ok) {
