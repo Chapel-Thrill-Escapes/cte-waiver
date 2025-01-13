@@ -77,9 +77,7 @@ export default async (request, context) => {
     const customerData = await getResponse.json();
 
     /// Build the JSON structure for PUT,
-    const waiverField = customerData.customFields.find(
-    (field: { id: string }) => field.id === "RATUN9"
-    );
+    const waiverField = customerData.customFields.find(field => field.id === "RATUN9");
     if (waiverField) {
     waiverField.value = publicKey;
     } else {
