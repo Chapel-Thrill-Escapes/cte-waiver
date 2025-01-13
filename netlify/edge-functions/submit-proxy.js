@@ -70,6 +70,7 @@ export default async (request, context) => {
      getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
      putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     }
+    console.log(getUrl);
     const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
       throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
