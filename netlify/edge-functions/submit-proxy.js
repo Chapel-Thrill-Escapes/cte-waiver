@@ -37,11 +37,11 @@ export default async (request, context) => {
   
   try {    
     // 1. Parse incoming data (assuming JSON in the request body)
-    const data = await request.json();
+    const client_data = await request.json();
 
     //  Loop over JSON and create variables (or store them in an object)
-    const { publicKey, Id, customerId, isParticipant } = data;
-    for (const [key, value] of Object.entries(data)) {
+    const { publicKey, personId, customerId, isParticipant } = client_data;
+    for (const [key, value] of Object.entries(client_data)) {
       console.log(`Key: ${key}, Value: ${value}`);
     }
 
@@ -52,7 +52,7 @@ export default async (request, context) => {
 
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
-    const signatureID = signer.sign(privateKey, 'base64');
+    const dsaSignature = signer.sign(privateKey, 'base64');
     // console.log("Signed Key:", signatureID);
 
     // 3. Send  requests to Bookeo's API to update the submitting customer's waiver confirmation field
@@ -64,8 +64,8 @@ export default async (request, context) => {
     let getUrl;
     let putUrl;
     if (isParticipant === 'true') {
-     getUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}`;
-     putUrl = `${baseUrl}/${customerId}/linkedpeople/${Id}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+     getUrl = `${baseUrl}/${customerId}/linkedpeople/${personId}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${customerId}/linkedpeople/${personId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     } else {
      getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
      putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
@@ -86,8 +86,7 @@ export default async (request, context) => {
       value: publicKey
      });
     }
-   
-    console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
+    // console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
 
     // 6. PUT the updated booking back to Bookeo
     const putResponse = await fetch(putUrl, {
@@ -96,11 +95,12 @@ export default async (request, context) => {
       body: JSON.stringify(customerData),
     });
 
+    let bookeoResult;
     if (!putResponse.ok) {
       throw new Error(`PUT booking failed: ${putResponse.status} ${putResponse.statusText} ${putResponse.message} `);
+    } else {
+      bookeoResult = 'success';
     }
-
-    const updatedBooking = await putResponse.json();
 
     // 7. Make a POST request (XHR-like) to a Google Form or Web App.  
     //    We’ll send the entire original body (including publicKey, bookingNumber, etc.)
@@ -110,9 +110,10 @@ export default async (request, context) => {
     //    Make sure your Google form/web app is expecting these fields.
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g. https://script.google.com/macros/s/...
     const formData = new URLSearchParams();
-    Object.entries(data).forEach(([key, value]) => {
+    Object.entries(client_data).forEach(([key, value]) => {
       formData.append(key, String(value));
     });
+    formData.append("dsaSignature", dsaSignature);
 
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
@@ -144,7 +145,7 @@ export default async (request, context) => {
     // and any relevant data from Bookeo or Google if desired.
     const clientResponseBody = {
       success: true,
-      signature,
+      dsaSignature,
       bookeoResult,
       googleResult
     };
