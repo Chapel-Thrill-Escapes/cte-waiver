@@ -53,9 +53,9 @@ export default async (request, context) => {
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
     const dsaSignature_private = signer.sign(privateKey, 'base64');
-    const dsaSignature = createHash('sha256');
+    const dsaSignature = crypto.createHash('sha256');
     dsaSignature.update(dsaSignature_private);
-    // console.log("Signed Key:", dsaSignature);
+    console.log("Signed Key:", dsaSignature);
 
     // 3. Send  requests to Bookeo's API to update the submitting customer's waiver confirmation field
     // Make Bookeo request to bookings data
