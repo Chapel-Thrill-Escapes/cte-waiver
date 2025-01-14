@@ -52,8 +52,10 @@ export default async (request, context) => {
 
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
-    const dsaSignature = signer.sign(privateKey, 'base64');
-    // console.log("Signed Key:", signatureID);
+    const dsaSignature_private = signer.sign(privateKey, 'base64');
+    const dsaSignature = createHash('sha256');
+    dsaSignature.update(dsaSignature_private);
+    // console.log("Signed Key:", dsaSignature);
 
     // 3. Send  requests to Bookeo's API to update the submitting customer's waiver confirmation field
     // Make Bookeo request to bookings data
@@ -80,11 +82,11 @@ export default async (request, context) => {
     /// Build the JSON structure for PUT,
     const waiverField = customerData.customFields.find(field => field.id === "RATUN9");
     if (waiverField) {
-    waiverField.value = publicKey;
+    waiverField.value = dsaSignature;
     } else {
      customerData.customFields.push({
       id: "RATUN9",
-      value: publicKey
+      value: dsaSignature
      });
     }
     // console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
@@ -114,7 +116,8 @@ export default async (request, context) => {
     Object.entries(client_data).forEach(([key, value]) => {
       formData.append(key, String(value));
     });
-    formData.append("dsaSignature", dsaSignature);
+    formData.append("dsaSignature_private", dsaSignature_private);
+    formData.append("dsaSignature", dsaSignature);  
 
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
