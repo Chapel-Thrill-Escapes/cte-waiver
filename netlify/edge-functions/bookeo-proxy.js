@@ -8,7 +8,8 @@ export default async (request, context) => {
   const originHeader = request.headers.get("origin") || "";
 
   // If it doesn’t match the CTE domain, block the request
-  const allowedOrigin = "https://www.chapelthrillescapes.com";
+  //const allowedOrigin = "https://www.chapelthrillescapes.com";
+  const allowedOrigin = "*";
   if (originHeader !== allowedOrigin) {
     return new Response("Forbidden", { status: 403 });
   }
