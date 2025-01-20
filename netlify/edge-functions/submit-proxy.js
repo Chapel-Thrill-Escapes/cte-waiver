@@ -22,7 +22,7 @@ export default async (request, context) => {
   // If the origin is allowed, add CORS response headers
   //    so the browser knows you allow that origin:
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization"
   };
@@ -37,6 +37,7 @@ export default async (request, context) => {
   
   try {    
     // 1. Parse incoming data (assuming JSON in the request body)
+    console.log(request);
     const client_data = await request.json();
 
     //  Loop over JSON and create variables (or store them in an object)
@@ -136,7 +137,7 @@ export default async (request, context) => {
           headers: {
             'Content-Type': 'application/json',
             // Important: set CORS headers even for error responses
-            'Access-Control-Allow-Origin': "*",
+            'Access-Control-Allow-Origin': allowedOrigin,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },
@@ -160,7 +161,7 @@ export default async (request, context) => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': "*",
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
@@ -171,7 +172,7 @@ export default async (request, context) => {
       statusCode: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': "*",
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       },
