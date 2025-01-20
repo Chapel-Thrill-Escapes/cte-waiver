@@ -9,7 +9,7 @@ export default async (request, context) => {
 
   // If it doesn’t match the CTE domain, block the request
   //const allowedOrigin = "https://www.chapelthrillescapes.com";
-  const allowedOrigin = "*";
+  const allowedOrigin = "https://www.chapelthrillescapes.com";
   if (originHeader !== allowedOrigin) {
     return new Response("Forbidden", { status: 403 });
   }
@@ -56,7 +56,7 @@ export default async (request, context) => {
           headers: {
             'Content-Type': 'application/json',
             // Important: set CORS headers even for error responses
-            'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+            'Access-Control-Allow-Origin': allowedOrigin,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },
@@ -70,7 +70,7 @@ export default async (request, context) => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
@@ -81,7 +81,7 @@ export default async (request, context) => {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': 'https://www.chapelthrillescapes.com',
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
