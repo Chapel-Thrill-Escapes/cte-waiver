@@ -41,7 +41,7 @@ export default async (request, context) => {
     const client_data = await request.json();
 
     //  Loop over JSON and create variables (or store them in an object)
-    const { publicKey, personId, customerId, isParticipant } = client_data;
+    const { publicKey, personId, bookeoCustomerID, bookeoParticipant } = client_data;
     for (const [key, value] of Object.entries(client_data)) {
       console.log(`Key: ${key}, Value: ${value}`);
     }
@@ -67,14 +67,14 @@ export default async (request, context) => {
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
     let putUrl;
-    if (isParticipant === 'true') {
-     getUrl = `${baseUrl}/${customerId}/linkedpeople/${personId}?apiKey=${apiKey}&secretKey=${secretKey}`;
-     putUrl = `${baseUrl}/${customerId}/linkedpeople/${personId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+    if (bookeoParticipant === 'true') {
+     getUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     } else {
-     getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
-     putUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+     getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     }
-    console.log(getUrl);
+    //console.log(getUrl);
     const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
       throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
