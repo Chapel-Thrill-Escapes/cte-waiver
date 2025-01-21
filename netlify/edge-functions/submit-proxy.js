@@ -58,8 +58,9 @@ export default async (request, context) => {
     const dsaSignature_private = signer.sign(privateKey, 'base64');
     const hash = crypto.createHash('MD5');
     hash.update(dsaSignature_private);
-    const dsaSignature = hash.digest('hex');
-    console.log("Signed Key:", dsaSignature);
+    const dsaSignature = hash.digest('hex').toString();
+    const dsaSignature_trun = dsaSignature.slice(0, 6).toUpperCase();
+    console.log("Signed Key:", dsaSignature_trun);
 
     // 2. Send requests to Bookeo's API to update the submitting customer's waiver confirmation field
     // Make GET request to our matched customer's Bookeo data via API - we'll use this to make our PUT request will all the current field values
@@ -117,7 +118,8 @@ export default async (request, context) => {
       formData.append(key, String(value));
     });
     formData.append("dsaSignature_private", dsaSignature_private);
-    formData.append("dsaSignature", dsaSignature);  
+    formData.append("waiverConfirmationNumNotTrunc", dsaSignature);  
+    formData.append("waiverConfirmationNum", dsaSignature_trun);  
 
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
@@ -147,7 +149,7 @@ export default async (request, context) => {
     // Return a response with the new signature data to the client.
     const clientResponseBody = {
       success: true,
-      dsaSignature,
+      dsaSignature_trun,
       bookeoResult,
       googleResult
     };
