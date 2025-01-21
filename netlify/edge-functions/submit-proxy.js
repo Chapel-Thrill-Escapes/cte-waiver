@@ -3,7 +3,7 @@ import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base
 
 // netlify/edge-functions/submit-proxy.js
 // An Edge Function that: 
-//     1. signs a public key with DSA; and
+//     1. signs SVG signature data with DSA; and
 //     2. updates a Bookeo booking via PUT; and 
 //     3. forwards the received data via POST (x-www-form-urlencoded) to a Google Web App.
 // Runs in Deno on Netlify's Edge network.
@@ -36,45 +36,46 @@ export default async (request, context) => {
   }
   
   try {    
-    // 1. Parse incoming data (assuming JSON in the request body)
-    console.log(request);
+    // Parse incoming data (assuming JSON in the request body)
     const client_data = await request.json();
-
-    //  Loop over JSON and create variables (or store them in an object)
-    const { publicKey, personId, bookeoCustomerID, bookeoParticipant } = client_data;
     for (const [key, value] of Object.entries(client_data)) {
-      console.log(`Key: ${key}, Value: ${value}`);
+      console.log(`Key: ${key}, Value: ${value}`);     //  Loop over client's JSON body values and print for debugging purposes
     }
+    // Declare constants from the client_data object that are used throughout; update this list if adding more data fields
+    const publicKey = client_data.svgSignature;
+    const customerID = client_data.bookeoCustomerID;
+    const isParticipant = client_data.bookeoParticipant;
+    const participantID = client_data.personId;
 
-    // 2. Sign the public key using DSA (with a private key from env var or secure storage)
+   
+    // 1. Sign the signature SVG data using DSA (with a private key from Netlify secure environment values)
     //
     const rawB64 = Netlify.env.get("RSA_PRIVATE_KEY");
-    const privateKey = new TextDecoder().decode(b64decode(rawB64)); // This is now the full PEM with newlines
+    const privateKey = new TextDecoder().decode(b64decode(rawB64)); // This is the full PEM with newlines using the raw private key from environment
 
     const signer = crypto.createSign('RSA-SHA256'); 
     signer.update(publicKey || ''); 
     const dsaSignature_private = signer.sign(privateKey, 'base64');
-    const hash = crypto.createHash('sha256');
+    const hash = crypto.createHash('MD5');
     hash.update(dsaSignature_private);
     const dsaSignature = hash.digest('hex');
     console.log("Signed Key:", dsaSignature);
 
-    // 3. Send  requests to Bookeo's API to update the submitting customer's waiver confirmation field
-    // Make Bookeo request to bookings data
+    // 2. Send requests to Bookeo's API to update the submitting customer's waiver confirmation field
+    // Make GET request to our matched customer's Bookeo data via API - we'll use this to make our PUT request will all the current field values
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
     let putUrl;
-    if (bookeoParticipant === 'true') {
-     getUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}`;
-     putUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+    if (isParticipant === 'true') {
+     getUrl = `${baseUrl}/${customerID}/linkedpeople/${participantID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${customerID}/linkedpeople/${participantID}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     } else {
-     getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
-     putUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
+     getUrl = `${baseUrl}/${customerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+     putUrl = `${baseUrl}/${customerID}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     }
-    //console.log(getUrl);
     const getResponse = await fetch(getUrl);
     if (!getResponse.ok) {
       throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
@@ -91,9 +92,8 @@ export default async (request, context) => {
       value: dsaSignature
      });
     }
-    // console.log(`PUT Request Body: ${JSON.stringify(customerData)}`)
 
-    // 6. PUT the updated booking back to Bookeo
+    // Make PUT request to Booeko with the updated customer data (JSON format), waiver confirmation number by Bookeo custom field ID
     const putResponse = await fetch(putUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -107,12 +107,10 @@ export default async (request, context) => {
       bookeoResult = 'success';
     }
 
-    // 7. Make a POST request (XHR-like) to a Google Form or Web App.  
-    //    We’ll send the entire original body (including publicKey, bookingNumber, etc.)
+    // 3. Make a POST request to the private Waiver Responses Google Sheets; this sheet stores all the waiver data
     //    as application/x-www-form-urlencoded. 
     //
-    //    The form data will be appended from your `body` object.
-    //    Make sure your Google form/web app is expecting these fields.
+    //    The form data will be appended from the `body` object.
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g. https://script.google.com/macros/s/...
     const formData = new URLSearchParams();
     Object.entries(client_data).forEach(([key, value]) => {
@@ -136,7 +134,6 @@ export default async (request, context) => {
           status: googleResp.status,
           headers: {
             'Content-Type': 'application/json',
-            // Important: set CORS headers even for error responses
             'Access-Control-Allow-Origin': allowedOrigin,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -145,10 +142,9 @@ export default async (request, context) => {
       );
     }
     
-    const googleResult = await googleResp.text();  // or json() if your web app returns JSON
+    const googleResult = await googleResp.text(); 
 
-    // Finally, return a response to the client. Include the signature
-    // and any relevant data from Bookeo or Google if desired.
+    // Return a response with the new signature data to the client.
     const clientResponseBody = {
       success: true,
       dsaSignature,
