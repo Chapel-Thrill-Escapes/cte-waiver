@@ -73,8 +73,6 @@ export default async (request, context) => {
     const hash = createHmac('sha256', secret)
               .update(sessionId)
               .digest('hex');
-    data.data['handshake'] = hash;
-    console.log(data);
     
     return new Response(JSON.stringify(data), {
       status: 200,
@@ -83,6 +81,8 @@ export default async (request, context) => {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'X-Hash': hash,
+        'Access-Control-Expose-Headers': 'X-Hash',
       },
     });
   } catch (error) {
