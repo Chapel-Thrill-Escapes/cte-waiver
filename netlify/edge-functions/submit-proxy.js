@@ -47,7 +47,7 @@ export default async (request, context) => {
     // Compare the client provided handshake to the expected hash
     const valid = (client_data.handshake === expectedHash);
     if (!valid) {
-      throw new Error(`Handshake verification failed; Expected Hash: ${expectedHash}; Provided Hash: ${client_data.handhsake}`);  
+      throw new Error(`Handshake verification failed; Expected Hash: ${expectedHash}; Provided Hash: ${client_data.handshake}`);  
     }
    console.log('Verified handshake hash!')
   
