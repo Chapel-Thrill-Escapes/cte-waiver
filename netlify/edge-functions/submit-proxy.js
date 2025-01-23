@@ -38,6 +38,18 @@ export default async (request, context) => {
   try {    
     // Parse incoming data (assuming JSON in the request body)
     const client_data = await request.json();
+
+    // First validate the handhsake with the expected hash:
+    const handshake_secret = Netlify.env.get("RSA_PRIVATE_KEY");
+    const expectedHash = createHmac('sha256', handshake_secret)
+                      .update(client_data.sessionId)
+                      .digest('hex');
+    // Compare the client provided handshake to the expected hash
+    const valid = (client_data.handhsake === expectedHash);
+    if (!valid) {
+      throw new Error(`Handshake verification failed; Expected Hash: ${expectedHash}; Provided Hash: ${client_data.handhsake}`);  
+    }
+  
     for (const [key, value] of Object.entries(client_data)) {
       console.log(`Key: ${key}, Value: ${value}`);     //  Loop over client's JSON body values and print for debugging purposes
     }
