@@ -45,7 +45,7 @@ export default async (request, context) => {
                       .update(client_data.sessionId)
                       .digest('hex');
     // Compare the client provided handshake to the expected hash
-    const valid = (client_data.handhsake === expectedHash);
+    const valid = (client_data.handshake === expectedHash);
     if (!valid) {
       throw new Error(`Handshake verification failed; Expected Hash: ${expectedHash}; Provided Hash: ${client_data.handhsake}`);  
     }
