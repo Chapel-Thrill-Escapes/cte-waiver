@@ -74,7 +74,7 @@ export default async (request, context) => {
     const hash = createHmac('sha256', secret)
               .update(sessionId)
               .digest('hex');
-    json_data.handshake = hash;
+    json_data.data['handshake'] = hash;
     
     return new Response(json_data, {
       status: 200,
