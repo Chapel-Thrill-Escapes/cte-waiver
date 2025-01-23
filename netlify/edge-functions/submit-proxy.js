@@ -99,11 +99,11 @@ export default async (request, context) => {
     /// Build the JSON structure for PUT,
     const waiverField = customerData.customFields.find(field => field.id === "RATUN9");
     if (waiverField) {
-    waiverField.value = dsaSignature;
+     waiverField.value = dsaSignature_trun;
     } else {
      customerData.customFields.push({
       id: "RATUN9",
-      value: dsaSignature
+      value: dsaSignature_trun
      });
     }
 
