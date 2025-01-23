@@ -68,15 +68,14 @@ export default async (request, context) => {
 
     // If successful, return data and hash of sessionId to verify in later steps on client-side
     const data = await response.json();
-    const json_data = JSON.stringify(data);
     
     const secret = Netlify.env.get("RSA_PRIVATE_KEY");
     const hash = createHmac('sha256', secret)
               .update(sessionId)
               .digest('hex');
-    json_data.data['handshake'] = hash;
+    data.data['handshake'] = hash;
     
-    return new Response(json_data, {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
