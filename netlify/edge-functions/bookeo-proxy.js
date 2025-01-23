@@ -74,6 +74,7 @@ export default async (request, context) => {
               .update(sessionId)
               .digest('hex');
     data.data['handshake'] = hash;
+    console.log(data);
     
     return new Response(JSON.stringify(data), {
       status: 200,
