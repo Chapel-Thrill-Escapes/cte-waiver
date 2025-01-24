@@ -41,8 +41,9 @@ a {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 8px; /* Optional: for rounded corners */
     margin: 20px auto; /* Centers the form horizontally */
-    color: #7f7f7f;
+    color: white;
     opacity: 0.6;
+    text-align: center;
 }
 
 
