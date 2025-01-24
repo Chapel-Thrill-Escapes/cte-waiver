@@ -6,9 +6,9 @@ import { useEffect, Suspense } from "react";
 
 const LandingPageContent = () => {
   const searchParams = useSearchParams(); // Use next/navigation for query params
-  const bookeoCustomerID = searchParams.get("bookeoCustomerID");
-  const bookeoId = searchParams.get("bookeoId");
-  const signatureKey = searchParams.get("signatureKey");
+  const bookeoCustomerID = searchParams.get("p1");
+  const bookeoId = searchParams.get("p2");
+  const signatureKey = searchParams.get("p3");
 
   useEffect(() => {
     if (bookeoCustomerID && bookeoId && signatureKey) {
