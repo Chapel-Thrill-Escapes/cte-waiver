@@ -14,21 +14,18 @@ const LandingPageContent = () => {
     if (bookeoCustomerID && bookeoId && signatureKey) {
       // Call the edge function
       const edgeFunctionUrl = `/validate-waiver?bookeoCustomerID=${bookeoCustomerID}&bookeoId=${bookeoId}&signatureKey=${signatureKey}`;
-      window.location.href = edgeFunctionUrl; // Redirect to the edge function
+      fetch(edgeFunctionUrl) // Redirect to the edge function
     }
   }, [bookeoCustomerID, bookeoId, signatureKey]);
 
   return (
-    <main className="flex flex-col gap-8 sm:gap-16">
-        <section className="flex flex-col items-start gap-3 sm:gap-4">
-            <div class="loading-overlay">
-                <div class="modal">
-                    <p>Validating...</p>
-                    <div class="spinner"></div>
-                </div>
-            </div>
-        </section>
-    </main>
+    <div class="loading-overlay">
+        <div class="modal">
+            <p>Validating...</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
   );
 };
 

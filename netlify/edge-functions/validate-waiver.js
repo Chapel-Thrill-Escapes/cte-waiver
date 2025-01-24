@@ -21,13 +21,10 @@ export default async (request) => {
      getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
     }
 
-    console.log(getUrl);
-
     try {
       // Fetch data from Bookeo API
       const response = await fetch(getUrl);
       if (!response.ok) {
-        console.log(response);
         return new Response("Failed to fetch data from Bookeo API", { status: response.status });
       }
   
