@@ -1,5 +1,4 @@
 // /app/valid.jsx
-import '../styles/globals.css';
 import React from 'react';
 
 const ValidPage = () => {

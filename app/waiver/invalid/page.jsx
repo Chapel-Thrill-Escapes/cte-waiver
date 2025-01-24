@@ -1,5 +1,4 @@
 // /app/invalid.jsx
-import '../styles/globals.css';
 import React from 'react';
 
 const InvalidPage = () => {

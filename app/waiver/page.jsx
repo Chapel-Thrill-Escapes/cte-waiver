@@ -1,20 +1,22 @@
 // /app/waiver/landing.jsx
+"use client";
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const LandingPage = () => {
-  const router = useRouter();
+  const searchParams = useSearchParams(); // Use next/navigation for query params
+  const bookeoCustomerID = searchParams.get("bookeoCustomerID");
+  const bookeoId = searchParams.get("bookeoId");
+  const signatureKey = searchParams.get("signatureKey");
 
   useEffect(() => {
-    const { bookeoCustomerID, bookeoId, signatureKey } = router.query;
-
     if (bookeoCustomerID && bookeoId && signatureKey) {
       // Call the edge function
       const edgeFunctionUrl = `/validate-waiver?bookeoCustomerID=${bookeoCustomerID}&bookeoId=${bookeoId}&signatureKey=${signatureKey}`;
-      window.location.href = edgeFunctionUrl; // Trigger edge function (will redirect)
+      window.location.href = edgeFunctionUrl; // Redirect to the edge function
     }
-  }, [router.query]);
+  }, [bookeoCustomerID, bookeoId, signatureKey]);
 
   return (
     <main className="flex flex-col gap-8 sm:gap-16">
