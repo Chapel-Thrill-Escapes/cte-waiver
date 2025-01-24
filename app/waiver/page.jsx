@@ -2,7 +2,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
 const LandingPage = () => {
   const searchParams = useSearchParams(); // Use next/navigation for query params
@@ -32,4 +32,12 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+const LandingPage = () => {
+    return (
+      <Suspense fallback={<p>Loading...</p>}>
+        <LandingPageContent />
+      </Suspense>
+    );
+  };
+  
+  export default LandingPage;
