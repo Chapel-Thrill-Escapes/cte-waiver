@@ -7,3 +7,6 @@
 [[edge_functions]]
   function = "submit-proxy"
   path = "/submit-proxy"
+[[edge_functions]]
+  function = "validate-waiver"
+  path = "/validate-waiver"
