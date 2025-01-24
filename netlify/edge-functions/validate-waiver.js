@@ -20,7 +20,7 @@ export default async (request) => {
     } else {
      getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
     }
-    
+
     console.log(getUrl);
 
     try {
@@ -38,11 +38,11 @@ export default async (request) => {
       if (bookeoWaiver.value === signatureKey) {
         console.log("Validated waiver!");
         // Redirect to the valid subpage
-        return Response.redirect(new URL("/app/waiver/valid", request.url), 302);
+        return Response.redirect(new URL("/waiver/valid", request.url), 302);
       } else {
         console.log("Did not validate waiver...");
         // Redirect to the invalid subpage
-        return Response.redirect(new URL("/app/waiver/invalid", request.url), 302);
+        return Response.redirect(new URL("/waiver/invalid", request.url), 302);
       }
     } catch (error) {
       console.error("Error calling Bookeo API:", error);
