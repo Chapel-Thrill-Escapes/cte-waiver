@@ -2,9 +2,9 @@
 
 export default async (request) => {
     const url = new URL(request.url);
-    const bookeoCustomerID = url.searchParams.get("bookeoCustomerID");
-    const bookeoId = url.searchParams.get("bookeoId");
-    const signatureKey = url.searchParams.get("signatureKey");
+    const bookeoCustomerID = url.searchParams.get("p1");
+    const bookeoId = url.searchParams.get("p2");
+    const signatureKey = url.searchParams.get("p3");
   
     if (!bookeoCustomerID || !bookeoId || !signatureKey) {
       return new Response("Missing required parameters", { status: 400 });
