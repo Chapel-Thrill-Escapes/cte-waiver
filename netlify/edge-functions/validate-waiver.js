@@ -15,17 +15,19 @@ export default async (request) => {
 
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
-    let putUrl;
     if (bookeoCustomerID !== bookeoId) {
      getUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}`;
     } else {
      getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
     }
+    
+    console.log(getUrl);
 
     try {
       // Fetch data from Bookeo API
       const response = await fetch(getUrl);
       if (!response.ok) {
+        console.log(response);
         return new Response("Failed to fetch data from Bookeo API", { status: response.status });
       }
   
@@ -34,9 +36,11 @@ export default async (request) => {
   
       // Check the condition
       if (bookeoWaiver.value === signatureKey) {
+        console.log("Validated waiver!");
         // Redirect to the valid subpage
         return Response.redirect(new URL("/app/waiver/valid", request.url), 302);
       } else {
+        console.log("Did not validate waiver...");
         // Redirect to the invalid subpage
         return Response.redirect(new URL("/app/waiver/invalid", request.url), 302);
       }
