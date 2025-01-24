@@ -4,7 +4,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
 
-const LandingPage = () => {
+const LandingPageContent = () => {
   const searchParams = useSearchParams(); // Use next/navigation for query params
   const bookeoCustomerID = searchParams.get("bookeoCustomerID");
   const bookeoId = searchParams.get("bookeoId");
