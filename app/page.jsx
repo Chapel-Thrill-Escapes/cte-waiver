@@ -17,7 +17,6 @@ export default function Page() {
             </section>
             {!!ctx && (
                 <section className="flex flex-col gap-4">
-                    <Markdown content={contextExplainer} />
                     <RuntimeContextCard />
                 </section>
             )}
