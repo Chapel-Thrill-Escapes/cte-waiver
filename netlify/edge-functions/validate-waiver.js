@@ -1,6 +1,5 @@
 import { createHmac } from 'crypto';
 
-
 export default async (request, context) => {
 
   try {
@@ -8,7 +7,7 @@ export default async (request, context) => {
     const customerId = searchParams.get("customerId");
     const participantId = searchParams.get("participantId");
     const userWaiverValue = searchParams.get("waiverConfirm");
-    const userHash = searchParams.get("waiverConfirm");
+    const userHash = searchParams.get("userHash");
     const sessionId = searchParams.get("sessionId");
 
     // Basic validation

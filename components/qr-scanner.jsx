@@ -19,13 +19,14 @@ export function QrCodeScanner() {
     try {
       // Retrieve each parameter's value
       const keyValues = data.split("&"); // ["p1=123", "p2=124", "p3=1345"]
-      const paramMap = {};
+      const params = {};
       keyValues.forEach((pair) => {
         const [key, value] = pair.split("=");
-        paramMap[key] = value;
+        params[key] = encodeURIComponent(value);
       });
-
-      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?customerId=${encodeURIComponent(paramMap.p1)}&participantId=${encodeURIComponent(paramMap.p2)}&waiverConfirm=${encodeURIComponent(paramMap.p3)}`);
+      const baseUrl = 'https://cte-waiver.netlify.app/validate-waiver';
+      
+      const response = await fetch(`${baseUrl}?customerId=${params.p1}&participantId=${params.p2}&waiverConfirm=${params.p3}&userHash=${params.p4}&sessionId=${params.p5}`);
       const result = await response.json();
 
       if (response.ok && result.success) {

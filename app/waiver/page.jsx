@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { QrCodeScanner } from 'components/qr-scanner';
 
 export default function Page() {
-  const CORRECT_PASSWORD = process.env.GM_PORTAL_PASSWORD; // Stored in environment variables for security
+  const CORRECT_PASSWORD = process.env.NEXT_PUBLIC_PORTAL_PASSWORD;
 
   const [enteredPassword, setEnteredPassword] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
