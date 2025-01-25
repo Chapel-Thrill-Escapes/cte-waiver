@@ -27,7 +27,7 @@ export default function ScannerPage() {
   const handleScan = async (data) => {
     setPause(true);
     try {
-      const response = await fetch(`https://http://cte-waiver.netlify.app/validate-waiver?code=${encodeURIComponent(data)}`);
+      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?code=${encodeURIComponent(data)}`);
       const result = await response.json();
 
       if (response.ok && result.success) {
