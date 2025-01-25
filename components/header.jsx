@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import cteLogo from 'public/cte_tri_color.svg';
+import cteLogo from 'public/netlify-logo.svg';
 
 const navItems = [
     { linkText: 'Home', href: '/' },
