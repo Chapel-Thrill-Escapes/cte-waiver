@@ -9,6 +9,7 @@ const cards = [
     { text: 'Hello', linkText: 'someLink', href: '/' }
 ];
 
+
 const ctx = getNetlifyContext();
 
 export default function Page() {
@@ -17,6 +18,7 @@ export default function Page() {
             <section className="flex flex-col items-start gap-3 sm:gap-4">
                 <ContextAlert />
                 <h1 className="mb-0">Chapel Thrill Escapes - Function Apps</h1>
+            </section>
             { !!cards?.length && <CardsGrid cards={cards} /> }
         </main>
     );
