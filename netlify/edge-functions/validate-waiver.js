@@ -6,7 +6,7 @@ export const config = {
 /**
  * GET /api/scan?code=...
  */
-export default async (request, context) {
+export default async (request, context) => {
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");
