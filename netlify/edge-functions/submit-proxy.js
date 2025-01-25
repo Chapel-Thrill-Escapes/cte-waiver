@@ -58,8 +58,7 @@ export default async (request, context) => {
     const publicKey = client_data.svgSignature;
     const customerID = client_data.bookeoCustomerID;
     const isParticipant = client_data.bookeoParticipant;
-    const participantID = client_data.personId;
-
+    const participantID = client_data.bookeoId;
    
     // 1. Sign the signature SVG data using DSA (with a private key from Netlify secure environment values)
     //
