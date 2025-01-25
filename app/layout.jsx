@@ -5,7 +5,7 @@ import { Header } from '../components/header';
 export const metadata = {
     title: {
         template: '%s | Netlify',
-        default: 'Netlify Starter'
+        default: 'Chapel Thrill Escapes'
     }
 };
 
@@ -13,9 +13,8 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" data-theme="lofi">
             <head>
-                <link rel="icon" href="/favicon.svg" sizes="any" />
             </head>
-            <body className="antialiased text-white bg-blue-900">
+            <body className="bg-white dark:bg-gray-800 rounded-lg px-6 py-8 ring shadow-xl ring-gray-900/5">
                 <div className="flex flex-col min-h-screen px-6 bg-grid-pattern sm:px-12">
                     <div className="flex flex-col w-full max-w-5xl mx-auto grow">
                         <Header />

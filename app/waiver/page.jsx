@@ -94,7 +94,7 @@ export default function ScannerPage() {
   }  
 
   return (
-    <div style={{ textAlign: 'center', backgroundColor: '#7f7f7f', width: '100%', height: '100%' }}>
+    <div style={{ textAlign: 'center' }}>
       <h1 >QR Code Scanner</h1>
       <Scanner
         formats={[
