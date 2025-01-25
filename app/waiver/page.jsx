@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { QrCodeScanner } from 'components/qr-scanner';
 
-export default async function Page() {
+export default function Page() {
   const CORRECT_PASSWORD = 'test';
 
   const [enteredPassword, setEnteredPassword] = useState('');
