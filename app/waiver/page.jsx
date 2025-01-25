@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from 'react';
-import dynamic from 'next/dynamic';
 import { QrReader } from 'react-qr-reader';
 
 export default function Home() {
