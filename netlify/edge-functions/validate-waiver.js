@@ -1,11 +1,4 @@
-// 1 Tell Next.js this route should run on the Edge Runtime
-export const config = {
-  path: '/edge'
-};
 
-/**
- * GET /api/scan?code=...
- */
 export default async (request, context) => {
   try {
     const { searchParams } = new URL(request.url);
