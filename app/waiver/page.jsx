@@ -104,11 +104,9 @@ export default function ScannerPage() {
             zIndex: 9999,
           }}
         >
-            <div style={{ textAlign: 'center' }}>
-              <p>{statusMessage}</p>
-            </div>
+          <div style={{ textAlign: 'center' }}>
+            <p>{statusMessage}</p>
           </div>
-        )}
         </div>
       )}
     </div>
