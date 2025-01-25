@@ -11,10 +11,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="en">
+        <html lang="en" data-theme="lofi">
             <head>
             </head>
-            <body className="bg-white dark:bg-gray-800 ring shadow-xl ring-gray-900/5">
+            <body className="bg-white dark:bg-gray-800">
                 <div className="flex flex-col min-h-screen px-6 bg-grid-pattern sm:px-12">
                     <div className="flex flex-col w-full max-w-5xl mx-auto grow">
                         <Header />
