@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { QrCodeScanner } from 'components/qr-scanner';
 
 export default function Page() {
-  const CORRECT_PASSWORD = 'test';
+  const CORRECT_PASSWORD = Netlify.env.get("GM_PORTAL_PASSWORD");
 
   const [enteredPassword, setEnteredPassword] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -28,6 +28,7 @@ export default function Page() {
           </label>
           <input
             type="password"
+            name="password"
             id="password"
             value={enteredPassword}
             onChange={(e) => setEnteredPassword(e.target.value)}
@@ -40,7 +41,7 @@ export default function Page() {
     );
   }
 
-  // Once authorized, show your actual content:
+  // Once authorized, show actual content:
   return (
     <>
       <h1>QR Code Scanner</h1>

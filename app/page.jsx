@@ -9,7 +9,7 @@ export default function Page() {
     return (
         <main className="flex flex-col gap-8 sm:gap-16">
             <section className="flex flex-col items-start gap-3 sm:gap-4">
-                <h1 className="mb-0">Chapel Thrill Escapes - Function Apps</h1>
+                <h1 className="mb-0">Chapel Thrill Escapes - Gamemasters</h1>
             </section>
             {!!ctx && (
                 <section className="flex flex-col gap-4">
