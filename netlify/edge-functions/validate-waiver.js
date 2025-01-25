@@ -4,8 +4,10 @@ export default async (request, context) => {
   try {
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get("customerId");
-    const participantId = searchParams.get("ID");
+    const participantId = searchParams.get("participantId");
     const waiverConfirm = searchParams.get("waiverConfirm");
+
+    console.log(customerId, participantId, waiverConfirm);
 
     // Basic validation
     if (!searchParams) {
@@ -58,7 +60,7 @@ export default async (request, context) => {
       );
     }
   } catch (error) {
-    console.error("Scan route error:", error);
+    console.log("Scan route error:", error);
     return new Response(
       JSON.stringify({ success: false, message: "Unexpected server error" }),
       {
