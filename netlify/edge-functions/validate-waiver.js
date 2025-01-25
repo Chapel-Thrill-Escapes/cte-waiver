@@ -8,7 +8,7 @@ export default async (request, context) => {
     const waiverConfirm = searchParams.get("waiverConfirm");
 
     // Basic validation
-    if (!code) {
+    if (!searchParams) {
       return new Response(
         JSON.stringify({ success: false, message: "No code provided" }),
         {

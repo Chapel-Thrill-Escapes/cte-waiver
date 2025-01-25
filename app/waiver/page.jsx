@@ -38,9 +38,9 @@ export default function ScannerPage() {
 
       if (response.ok && result.success) {
         //alert("Success! Waiver validated.")
-        setStatusMessage('Success! Waiver validated.');
+        setStatusMessage('Valid Waiver');
       } else {
-        setStatusMessage('Fail. Waiver not validated.');
+        setStatusMessage('Invalid Waiver');
         //alert(result.message);
       }
 
@@ -59,6 +59,10 @@ export default function ScannerPage() {
       setPause(false);
     }
   };
+
+  // Decide the modal background color based on verification status
+  const modalBackgroundColor =
+    statusMessage === 'Valid Waiver' ? '#4CAF50' : '#ffabab';
 
   return (
     <div style={{ textAlign: 'center' }}>
@@ -89,26 +93,22 @@ export default function ScannerPage() {
       {modalVisible && (
         <div
           style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            color: '#fff',
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: modalBackgroundColor,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '1.5rem',
-            zIndex: 9999
+            color: '#fff',
+            fontSize: '2rem',
+            zIndex: 9999,
           }}
         >
-          <div
-            style={{
-              background: '#333',
-              padding: '2rem',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}
-          >
-            <p>{statusMessage}</p>
+            <div style={{ textAlign: 'center' }}>
+              <p>{statusMessage}</p>
+            </div>
           </div>
+        )}
         </div>
       )}
     </div>
