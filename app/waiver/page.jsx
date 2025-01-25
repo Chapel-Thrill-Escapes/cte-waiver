@@ -2,9 +2,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
-
-// Dynamically load react-qr-reader on the client side only
-const QrReader = dynamic(() => import('react-qr-reader'), { ssr: false });
+import { QrReader } from 'react-qr-reader';
 
 export default function Home() {
   const [scanResult, setScanResult] = useState(null);
