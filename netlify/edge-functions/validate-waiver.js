@@ -62,7 +62,7 @@ export default async (request, context) => {
     return new Response(
       JSON.stringify({ success: false, message: "Unexpected server error" }),
       {
-        status: 500,
+        status: 401,
         headers: { "Content-Type": "application/json" },
       }
     );

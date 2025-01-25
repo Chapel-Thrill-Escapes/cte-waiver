@@ -28,12 +28,14 @@ export default function ScannerPage() {
     setPause(true);
     try {
       // Retrieve each parameter's value
-      const params = new URLSearchParams(data);
-      const p1 = params.get("p1");
-      const p2 = params.get("p2");
-      const p3 = params.get("p3");
+      const keyValues = data.split("&"); // ["p1=123", "p2=124", "p3=1345"]
+      const paramMap = {};
+      keyValues.forEach((pair) => {
+        const [key, value] = pair.split("=");
+        paramMap[key] = value;
+      });
 
-      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?customerId=${encodeURIComponent(p1)}?ID=${encodeURIComponent(p2)}?waiverConfirm=${encodeURIComponent(p3)}`);
+      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?customerId=${encodeURIComponent(paramMap.p1)}?ID=${encodeURIComponent(paramMap.p2)}?waiverConfirm=${encodeURIComponent(paramMap.p3)}`);
       const result = await response.json();
 
       if (response.ok && result.success) {
