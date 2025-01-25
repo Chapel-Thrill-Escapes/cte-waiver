@@ -1,21 +1,58 @@
-// pages/api/verify.js
+// 1 Tell Next.js this route should run on the Edge Runtime
+export const config = {
+  path: '/edge'
+};
 
-export default async (request, context) => {
-  // Extract any relevant info from the query or body
-  // For example, if you wanted to parse ?code=XYZ
-  const { searchParams } = new URL(request.url);
+/**
+ * GET /api/scan?code=...
+ */
+export default async (request, context) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get("code");
 
-  // Placeholder: decide if it's verified or not
-  // In real life, you might check a database or some other logic
-  const isVerified = Math.random() > 0.5; // 50% chance
+    // Basic validation
+    if (!code) {
+      return new Response(
+        JSON.stringify({ success: false, message: "No code provided" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
-  if (isVerified) {
-    return new Response(JSON.stringify('verified'), {
-      status: 200,
-    });
-  } else {
-    return new Response(JSON.stringify('not verified'), {
-      status: 401,
-    });
+    // 2 Place your custom logic here (e.g. verify the code in a database, etc.)
+    // For this example, we’ll assume code === "1234" is valid; otherwise invalid.
+    if (code === "1234") {
+      return new Response(
+        JSON.stringify({ success: true, message: "Valid code!" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // If it doesn't match, return an error
+    return new Response(
+      JSON.stringify({ success: false, message: "Invalid code" }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Scan route error:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: "Unexpected server error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
