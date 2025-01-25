@@ -31,10 +31,8 @@ export default async (request, context) => {
     }
 
     // Make GET request to Bookeo API - customer data
+    console.log(getUrl);
     const getResponse = await fetch(getUrl);
-    if (!getResponse.ok) {
-      throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
-    }
 
     // Return Waiver field value from Bookeo GET request
     const customerData = await getResponse.json();
