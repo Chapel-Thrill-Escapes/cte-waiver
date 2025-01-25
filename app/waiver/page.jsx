@@ -66,7 +66,7 @@ export default function ScannerPage() {
   const modalBackgroundColor =
     statusMessage === 'Valid Waiver' ? '#00a755' : '#f0474c';
 
-  let verificationIcon = null;
+  let statusIcon = null;
   if (statusMessage === 'Valid Waiver') {
     statusIcon = (
       <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white">

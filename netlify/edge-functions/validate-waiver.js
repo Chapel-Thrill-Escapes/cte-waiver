@@ -7,8 +7,6 @@ export default async (request, context) => {
     const participantId = searchParams.get("participantId");
     const waiverConfirm = searchParams.get("waiverConfirm");
 
-    console.log(customerId, participantId, waiverConfirm);
-
     // Basic validation
     if (!searchParams) {
       return new Response(
@@ -33,13 +31,11 @@ export default async (request, context) => {
     }
 
     // Make GET request to Bookeo API - customer data
-    console.log(getUrl);
     const getResponse = await fetch(getUrl);
 
     // Return Waiver field value from Bookeo GET request
     const customerData = await getResponse.json();
     const actualWaiverValue = customerData.customFields.find(field => field.id === "RATUN9").value;
-    console.log(actualWaiverValue);
 
     if (actualWaiverValue === waiverConfirm) {
       return new Response(
