@@ -1,30 +1,6 @@
 
 export default async (request, context) => {
 
-  function bookeoRequest(customerID, participantID) {
-    const apiKey = Netlify.env.get("BOOKEO_API_KEY");
-    const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
-
-    const baseUrl = 'https://api.bookeo.com/v2/customers';
-    let getUrl;
-    if (customerID !== participantID) {
-      getUrl = `${baseUrl}/${customerID}/linkedpeople/${participantID}?apiKey=${apiKey}&secretKey=${secretKey}`;
-    } else {
-      getUrl = `${baseUrl}/${customerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
-    }
-
-    const getResponse = await fetch(getUrl);
-    if (!getResponse.ok) {
-      throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
-    }
-    const customerData = await getResponse.json();
-
-    /// Return Waiver field value from Bookeo GET request
-    const waiverField = customerData.customFields.find(field => field.id === "RATUN9").value;
-    console.log(waiverField);
-    return waiverField;
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get("customerId");
@@ -43,8 +19,29 @@ export default async (request, context) => {
     }
 
     // Check bookeo databased
-    response = bookeoRequest(customerId, ID)
-    if (response === waiverConfirm) {
+    const apiKey = Netlify.env.get("BOOKEO_API_KEY");
+    const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
+
+    const baseUrl = 'https://api.bookeo.com/v2/customers';
+    let getUrl;
+    if (customerID !== participantID) {
+      getUrl = `${baseUrl}/${customerID}/linkedpeople/${participantID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    } else {
+      getUrl = `${baseUrl}/${customerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    }
+
+    // Make GET request to Bookeo API - customer data
+    const getResponse = await fetch(getUrl);
+    if (!getResponse.ok) {
+      throw new Error(`GET customer failed: ${getResponse.status} ${getResponse.statusText}`);
+    }
+
+    // Return Waiver field value from Bookeo GET request
+    const customerData = await getResponse.json();
+    const actualWaiverValue = customerData.customFields.find(field => field.id === "RATUN9").value;
+    console.log(actualWaiverValue);
+
+    if (actualWaiverValue === waiverConfirm) {
       return new Response(
         JSON.stringify({ success: true, message: "Valid code!" }),
         {
