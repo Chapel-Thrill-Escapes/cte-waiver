@@ -20,8 +20,9 @@ const styles = {
 };
 
 export default function ScannerPage() {
-  const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
-  const [tracker, setTracker] = useState<string | undefined>("centerText");
+  // No TypeScript types; just plain JS state
+  const [deviceId, setDeviceId] = useState(undefined);
+  const [tracker, setTracker] = useState("centerText");
   const [pause, setPause] = useState(false);
 
   const devices = useDevices();
@@ -39,12 +40,10 @@ export default function ScannerPage() {
     }
   }
 
-  const handleScan = async (data: string) => {
+  const handleScan = async (data) => {
     setPause(true);
     try {
-      const response = await fetch(
-        `your-api-url?code=${encodeURIComponent(data)}`
-      );
+      const response = await fetch(`your-api-url?code=${encodeURIComponent(data)}`);
       const result = await response.json();
 
       if (response.ok && result.success) {
@@ -52,8 +51,8 @@ export default function ScannerPage() {
       } else {
         alert(result.message);
       }
-    } catch (error: unknown) {
-      console.log(error);
+    } catch (error) {
+      console.error("Error scanning:", error);
     } finally {
       setPause(false);
     }
@@ -105,13 +104,14 @@ export default function ScannerPage() {
           "upc_e",
         ]}
         constraints={{
-          deviceId: deviceId,
+          deviceId,
         }}
         onScan={(detectedCodes) => {
+          // Handle the scanned result
           handleScan(detectedCodes[0].rawValue);
         }}
         onError={(error) => {
-          console.log(`onError: ${error}'`);
+          console.log(`onError: ${error}`);
         }}
         styles={{ container: { height: "400px", width: "350px" } }}
         components={{
