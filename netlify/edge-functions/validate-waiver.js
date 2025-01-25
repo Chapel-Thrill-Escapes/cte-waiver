@@ -5,7 +5,9 @@ export default async (request, context) => {
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get("customerId");
     const participantId = searchParams.get("participantId");
-    const waiverConfirm = searchParams.get("waiverConfirm");
+    const userWaiverValue = searchParams.get("waiverConfirm");
+    const userHash = searchParams.get("waiverConfirm");
+    const sessionId = searchParams.get("sessionId");
 
     // Basic validation
     if (!searchParams) {
@@ -18,7 +20,10 @@ export default async (request, context) => {
       );
     }
 
-    // Check bookeo databased
+    /// Two step validation procedure that is cryptographically secure and unique to each generated QR code, 
+    //      even preventing manual entry of waiver confirmation codes into Bookeo
+    //
+    //  1. Check Bookeo database against provided Waiver Confirmation code
     const apiKey = Netlify.env.get("BOOKEO_API_KEY");
     const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
 
@@ -29,15 +34,22 @@ export default async (request, context) => {
     } else {
       getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
     }
-
     // Make GET request to Bookeo API - customer data
     const getResponse = await fetch(getUrl);
-
     // Return Waiver field value from Bookeo GET request
     const customerData = await getResponse.json();
     const actualWaiverValue = customerData.customFields.find(field => field.id === "RATUN9").value;
+    const waiver_valid = (userWaiverValue === actualWaiverValue);
+    
+    //  2. Check provided handshake and sessionID to see if they match the expected hash using the RSA private key
+    const handshake_secret = Netlify.env.get("RSA_PRIVATE_KEY");
+    const expectedHash = crypto.createHmac('sha256', handshake_secret)
+                      .update(sessionId)
+                      .digest('hex');
+    // Compare the client provided handshake to the expected hash
+    const handshake_valid = (userHash === expectedHash);
 
-    if (actualWaiverValue === waiverConfirm) {
+    if (waiver_valid && handshake_valid) {
       return new Response(
         JSON.stringify({ success: true, message: "Valid code!" }),
         {
