@@ -1,14 +1,11 @@
 import Link from 'next/link';
 import { Card } from 'components/card';
-import { RandomQuote } from 'components/random-quote';
-import { Markdown } from 'components/markdown';
-import { ContextAlert } from 'components/context-alert';
+import { CardsGrid } from 'components/cards-grid';
 import { getNetlifyContext } from 'utils';
 
 const cards = [
     { text: 'Hello', linkText: 'someLink', href: '/' }
 ];
-
 
 const ctx = getNetlifyContext();
 
