@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { QrReader } from 'react-qr-reader';
 
 const Test = (props) => {
