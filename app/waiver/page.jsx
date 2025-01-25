@@ -20,33 +20,49 @@ const styles = {
 };
 
 export default function ScannerPage() {
-  const [deviceId, setDeviceId] = useState(undefined);
   const [pause, setPause] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleScan = async (data) => {
     setPause(true);
     try {
-      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?code=${encodeURIComponent(data)}`);
+      // Retrieve each parameter's value
+      const params = new URLSearchParams(data);
+      const p1 = params.get("p1");
+      const p2 = params.get("p2");
+      const p3 = params.get("p3");
+
+      const response = await fetch(`https://cte-waiver.netlify.app/validate-waiver?customerId=${encodeURIComponent(p1)}?ID=${encodeURIComponent(p2)}?waiverConfirm=${encodeURIComponent(p3)}`);
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("Success! Waiver validated.")
-        // setStatusMessage('Success! Waiver validated.');
+        //alert("Success! Waiver validated.")
+        setStatusMessage('Success! Waiver validated.');
       } else {
-        // setStatusMessage('Fail. Waiver not validated.');
-        alert(result.message);
+        setStatusMessage('Fail. Waiver not validated.');
+        //alert(result.message);
       }
+
+      // Show modal
+      setModalVisible(true);
+      // Hide modal after 3 seconds and reset
+      setTimeout(() => {
+        setModalVisible(false);
+        setStatusMessage('');
+        setPause(false);
+        }, 3000);
+      
     } catch (error) {
       alert("Error scanning");
       console.error("Error scanning:", error);
-    } finally {
       setPause(false);
     }
   };
 
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
+      <h1 >QR Code Scanner</h1>
       <Scanner
         formats={[
           "qr_code",
@@ -69,6 +85,32 @@ export default function ScannerPage() {
         scanDelay={2000}
         paused={pause}
       />
+      {/* Modal */}
+      {modalVisible && (
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            zIndex: 9999
+          }}
+        >
+          <div
+            style={{
+              background: '#333',
+              padding: '2rem',
+              borderRadius: '8px',
+              textAlign: 'center'
+            }}
+          >
+            <p>{statusMessage}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
