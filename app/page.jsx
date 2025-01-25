@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card } from 'components/card';
 import { CardsGrid } from 'components/cards-grid';
+import { ContextAlert } from 'components/context-alert';
 import { getNetlifyContext } from 'utils';
 
 const cards = [
