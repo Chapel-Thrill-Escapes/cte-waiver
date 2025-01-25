@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-const cteLogo = 'https://images.squarespace-cdn.com/content/v1/5c4bb09e12b13f52d82511e7/1562894905826-0WWB3EMBR4WBXLT74LPR/blacklogo.png?format=750w';
+import cteLogo from 'public/cte_tri_color.svg';
 
 const navItems = [
     { linkText: 'Home', href: '/' },

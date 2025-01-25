@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Card } from 'components/card';
 import { CardsGrid } from 'components/cards-grid';
-import { ContextAlert } from 'components/context-alert';
 import { getNetlifyContext } from 'utils';
 
 const cards = [
@@ -14,9 +13,14 @@ export default function Page() {
     return (
         <main className="flex flex-col gap-8 sm:gap-16">
             <section className="flex flex-col items-start gap-3 sm:gap-4">
-                <ContextAlert />
                 <h1 className="mb-0">Chapel Thrill Escapes - Function Apps</h1>
             </section>
+            {!!ctx && (
+                <section className="flex flex-col gap-4">
+                    <Markdown content={contextExplainer} />
+                    <RuntimeContextCard />
+                </section>
+            )}
             { !!cards?.length && <CardsGrid cards={cards} /> }
         </main>
     );

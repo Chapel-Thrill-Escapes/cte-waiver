@@ -43,7 +43,7 @@ export function QrCodeScanner() {
         setModalVisible(false);
         setStatusMessage('');
         setPause(false);
-        }, 2500);
+        }, 2000);
       
     } catch (error) {
       alert("Error scanning");
