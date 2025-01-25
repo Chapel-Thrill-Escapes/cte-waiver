@@ -40,13 +40,14 @@ a {
     padding: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 8px; /* Optional: for rounded corners */
-    margin: 20px auto; /* Centers the form horizontally */
     color: white;
     text-align: center;
-    position: absolute;
-    z-index: 15;
+    position: fixed;
+    z-index: 1000;
     top: 50%;
     left: 50%;
+    height: auto;
+    transform: translate(-50%, -50%);
 }
 
 

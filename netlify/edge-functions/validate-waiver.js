@@ -1,48 +1,17 @@
-// /netlify/edge-functions/validate-signature.js
+// pages/api/verify.js
 
-export default async (request) => {
-    const url = new URL(request.url);
-    const bookeoCustomerID = url.searchParams.get("p1");
-    const bookeoId = url.searchParams.get("p2");
-    const signatureKey = url.searchParams.get("p3");
-  
-    if (!bookeoCustomerID || !bookeoId || !signatureKey) {
-      return new Response("Missing required parameters", { status: 400 });
-    }
-  
-    const apiKey = Netlify.env.get("BOOKEO_API_KEY");
-    const secretKey = Netlify.env.get("BOOKEO_SECRET_KEY");
+export default function handler(req, res) {
+  // Extract any relevant info from the query or body
+  // For example, if you wanted to parse ?code=XYZ
+  // const { code } = req.query;
 
-    const baseUrl = 'https://api.bookeo.com/v2/customers';
-    let getUrl;
-    if (bookeoCustomerID !== bookeoId) {
-     getUrl = `${baseUrl}/${bookeoCustomerID}/linkedpeople/${bookeoId}?apiKey=${apiKey}&secretKey=${secretKey}`;
-    } else {
-     getUrl = `${baseUrl}/${bookeoCustomerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
-    }
+  // Placeholder: decide if it's verified or not
+  // In real life, you might check a database or some other logic
+  const isVerified = Math.random() > 0.5; // 50% chance
 
-    try {
-      // Fetch data from Bookeo API
-      const response = await fetch(getUrl);
-      if (!response.ok) {
-        return new Response("Failed to fetch data from Bookeo API", { status: response.status });
-      }
-  
-      const bookeoData = await response.json();
-      const bookeoWaiver = bookeoData.customFields.find(field => field.id === "RATUN9")
-  
-      // Check the condition
-      if (bookeoWaiver.value === signatureKey) {
-        console.log("Validated waiver!");
-        // Redirect to the valid subpage
-        return Response.redirect(new URL("/waiver/valid", request.url), 302);
-      } else {
-        console.log("Did not validate waiver...");
-        // Redirect to the invalid subpage
-        return Response.redirect(new URL("/waiver/invalid", request.url), 302);
-      }
-    } catch (error) {
-      console.error("Error calling Bookeo API:", error);
-      return new Response("Internal Server Error", { status: 500 });
-    }
-  };
+  if (isVerified) {
+    return res.status(200).json({ status: 'verified' });
+  } else {
+    return res.status(200).json({ status: 'not verified' });
+  }
+}
