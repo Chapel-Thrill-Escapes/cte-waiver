@@ -3,7 +3,7 @@
 export default function handler(req, res) {
   // Extract any relevant info from the query or body
   // For example, if you wanted to parse ?code=XYZ
-  // const { code } = req.query;
+  const { code } = req.query;
 
   // Placeholder: decide if it's verified or not
   // In real life, you might check a database or some other logic
@@ -12,6 +12,6 @@ export default function handler(req, res) {
   if (isVerified) {
     return res.status(200).json({ status: 'verified' });
   } else {
-    return res.status(200).json({ status: 'not verified' });
+    return res.status(401).json({ status: 'not verified' });
   }
 }

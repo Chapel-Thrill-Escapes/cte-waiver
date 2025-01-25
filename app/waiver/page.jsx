@@ -20,38 +20,25 @@ const styles = {
 };
 
 export default function ScannerPage() {
-  // No TypeScript types; just plain JS state
   const [deviceId, setDeviceId] = useState(undefined);
-  const [tracker, setTracker] = useState("centerText");
   const [pause, setPause] = useState(false);
-
-  const devices = useDevices();
-
-  function getTracker() {
-    switch (tracker) {
-      case "outline":
-        return outline;
-      case "boundingBox":
-        return boundingBox;
-      case "centerText":
-        return centerText;
-      default:
-        return undefined;
-    }
-  }
+  const [statusMessage, setStatusMessage] = useState('');
 
   const handleScan = async (data) => {
     setPause(true);
     try {
-      const response = await fetch(`your-api-url?code=${encodeURIComponent(data)}`);
+      const response = await fetch(`https://http://cte-waiver.netlify.app/validate-waiver?code=${encodeURIComponent(data)}`);
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("Success! Welcome to the conference.");
+        alert("Success! Waiver validated.")
+        // setStatusMessage('Success! Waiver validated.');
       } else {
+        // setStatusMessage('Fail. Waiver not validated.');
         alert(result.message);
       }
     } catch (error) {
+      alert("Error scanning");
       console.error("Error scanning:", error);
     } finally {
       setPause(false);
@@ -60,25 +47,6 @@ export default function ScannerPage() {
 
   return (
     <div>
-      <div style={styles.controls}>
-        <select onChange={(e) => setDeviceId(e.target.value)}>
-          <option value={undefined}>Select a device</option>
-          {devices.map((device, index) => (
-            <option key={index} value={device.deviceId}>
-              {device.label}
-            </option>
-          ))}
-        </select>
-        <select
-          style={{ marginLeft: 5 }}
-          onChange={(e) => setTracker(e.target.value)}
-        >
-          <option value="centerText">Center Text</option>
-          <option value="outline">Outline</option>
-          <option value="boundingBox">Bounding Box</option>
-          <option value={undefined}>No Tracker</option>
-        </select>
-      </div>
       <Scanner
         formats={[
           "qr_code",
@@ -116,13 +84,9 @@ export default function ScannerPage() {
         styles={{ container: { height: "400px", width: "350px" } }}
         components={{
           audio: true,
-          onOff: true,
-          torch: true,
-          zoom: true,
-          finder: true,
-          tracker: getTracker(),
+          tracker: boundingBox,
         }}
-        allowMultiple={true}
+        allowMultiple={false}
         scanDelay={2000}
         paused={pause}
       />
