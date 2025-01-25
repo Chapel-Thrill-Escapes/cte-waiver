@@ -4,7 +4,7 @@ export default async (request, context) => {
   try {
     const { searchParams } = new URL(request.url);
     const customerId = searchParams.get("customerId");
-    const ID = searchParams.get("ID");
+    const participantId = searchParams.get("ID");
     const waiverConfirm = searchParams.get("waiverConfirm");
 
     // Basic validation
@@ -24,10 +24,10 @@ export default async (request, context) => {
 
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
-    if (customerID !== participantID) {
-      getUrl = `${baseUrl}/${customerID}/linkedpeople/${participantID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+    if (customerId !== participantId) {
+      getUrl = `${baseUrl}/${customerId}/linkedpeople/${participantId}?apiKey=${apiKey}&secretKey=${secretKey}`;
     } else {
-      getUrl = `${baseUrl}/${customerID}?apiKey=${apiKey}&secretKey=${secretKey}`;
+      getUrl = `${baseUrl}/${customerId}?apiKey=${apiKey}&secretKey=${secretKey}`;
     }
 
     // Make GET request to Bookeo API - customer data
