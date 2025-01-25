@@ -2,10 +2,6 @@
 import { useState } from 'react';
 import { QrCodeScanner } from 'components/qr-scanner';
 
-export const metadata = {
-    title: 'Waiver Validation'
-};
-
 export default async function Page() {
   const CORRECT_PASSWORD = 'test';
 
