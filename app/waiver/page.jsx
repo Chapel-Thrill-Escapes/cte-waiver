@@ -1,7 +1,9 @@
+'use client';
 import React, { useState } from 'react';
 import { QrReader } from 'react-qr-reader';
 
-const Test = (props) => {
+function
+ Scan() {
     const [data, setData] = useState('No result');
 
     return (
@@ -16,11 +18,13 @@ const Test = (props) => {
                 console.info(error);
             }
             }}
-            style={{ width: '100%' }}
+            constraints={{ facingMode: 'environment' }}
+            style={{ width: '40%', height: '40%' }}
+            legacyMode="true"
         />
         <p>{data}</p>
         </>
     );
 };
 
-export default Test;
+export default Scan;
