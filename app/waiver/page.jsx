@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { QrCodeScanner } from 'components/qr-scanner';
 
 export default function Page() {
-  const CORRECT_PASSWORD = Netlify.env.get("GM_PORTAL_PASSWORD"); // Stored in environment variables for security
+  const CORRECT_PASSWORD = process.env.GM_PORTAL_PASSWORD; // Stored in environment variables for security
 
   const [enteredPassword, setEnteredPassword] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
