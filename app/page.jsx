@@ -3,10 +3,6 @@ import { Card } from 'components/card';
 import { CardsGrid } from 'components/cards-grid';
 import { getNetlifyContext } from 'utils';
 
-const cards = [
-    { text: 'Hello', linkText: 'someLink', href: '/' }
-];
-
 const ctx = getNetlifyContext();
 
 export default function Page() {
@@ -20,7 +16,6 @@ export default function Page() {
                     <RuntimeContextCard />
                 </section>
             )}
-            { !!cards?.length && <CardsGrid cards={cards} /> }
         </main>
     );
 }
