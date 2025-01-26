@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+import { createHmac } from 'node:crypto';
 
 export default async (request, context) => {
 
@@ -44,7 +44,7 @@ export default async (request, context) => {
     
     //  2. Check provided handshake and sessionID to see if they match the expected hash using the RSA private key
     const handshake_secret = Netlify.env.get("RSA_PRIVATE_KEY");
-    const expectedHash = crypto.createHmac('sha256', handshake_secret)
+    const expectedHash = createHmac('sha256', handshake_secret)
                       .update(sessionId)
                       .digest('hex');
     // Compare the client provided handshake to the expected hash
