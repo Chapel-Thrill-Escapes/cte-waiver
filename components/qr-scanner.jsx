@@ -65,7 +65,7 @@ export function QrCodeScanner() {
         viewBox="0 0 24 24"
         fill="none" stroke="#fff"
         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        style={{ marginBottom: '1rem' }}
+        // style={{ marginBottom: '1rem' }}
       >
         <path d="M20 6L9 17l-5-5" />
       </svg>
@@ -77,7 +77,7 @@ export function QrCodeScanner() {
         viewBox="0 0 24 24"
         fill="none" stroke="#fff"
         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        style={{ marginBottom: '1rem' }}
+        // style={{ marginBottom: '1rem' }}
       >
         <path d="M18 6L6 18M6 6l12 12" />
       </svg>
@@ -123,7 +123,7 @@ export function QrCodeScanner() {
             zIndex: 9999,
           }}
         >
-          <p>{statusIcon}</p>
+          <div>{statusIcon}</div>
           <div style={{ textAlign: 'center', padding: '10px', justifyContent: 'center' }}>
             <b>{statusMessage}</b>
           </div>
