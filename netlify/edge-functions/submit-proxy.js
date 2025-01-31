@@ -41,7 +41,7 @@ export default async (request, context) => {
 
     // First validate the handhsake with the expected hash:
     const handshake_secret = Netlify.env.get("RSA_PRIVATE_KEY");
-    const expectedHash = crypto.createHmac('sha256', handshake_secret)
+    const expectedHash = crypto.createHmac('MD5', handshake_secret)
                       .update(client_data.sessionId)
                       .digest('hex');
     // Compare the client provided handshake to the expected hash

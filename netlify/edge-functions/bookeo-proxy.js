@@ -1,4 +1,11 @@
 import { createHmac } from 'crypto';
+//import { Redis } from "@upstash/redis/with-fetch";
+//import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+
+//const redis = new Redis({
+//  url: Netlify.env.get("UPSTASH_REDIS_REST_URL"),
+//  token: Netlify.env.get("UPSTASH_REDIS_REST_TOKEN"),
+//});
 // netlify/edge-functions/bookeo-proxy.js
 // An Edge Function that fetches data from Bookeo and returns it to the client.
 // Runs in Deno on Netlify's Edge network.
@@ -9,7 +16,6 @@ export default async (request, context) => {
   const originHeader = request.headers.get("origin") || "";
 
   // If it doesn’t match the CTE domain, block the request
-  //const allowedOrigin = "https://www.chapelthrillescapes.com";
   const allowedOrigin = "https://www.chapelthrillescapes.com";
   if (originHeader !== allowedOrigin) {
     return new Response("Forbidden", { status: 403 });
@@ -38,9 +44,9 @@ export default async (request, context) => {
     const bookingDateStr = searchParams.get("bookingDate");
     const sessionId = searchParams.get("sessionId");
     const startDate = new Date(bookingDateStr);
-    startDate.setDate(startDate.getDate() - 5); // Adding buffer of 5 days
+    startDate.setDate(startDate.getDate() - 5); // Adding buffer range of -5 days
     const endDate = new Date(bookingDateStr);
-    endDate.setDate(endDate.getDate() + 5); // Adding buffer of 5 days
+    endDate.setDate(endDate.getDate() + 5); // Adding buffer range of +5 days
     const startTime = startDate.toISOString();
     const endTime = endDate.toISOString();
 
@@ -69,8 +75,8 @@ export default async (request, context) => {
     // If successful, return data and hash of sessionId to verify in later steps on client-side
     const data = await response.json();
     
-    const secret = Netlify.env.get("RSA_PRIVATE_KEY");
-    const hash = createHmac('sha256', secret)
+    const handshake_secret = Netlify.env.get("RSA_PRIVATE_KEY");
+    const hash = createHmac('MD5', handshake_secret)
               .update(sessionId)
               .digest('hex');
     
