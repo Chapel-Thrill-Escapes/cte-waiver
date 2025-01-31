@@ -161,7 +161,7 @@ export default async (request, context) => {
 
     } else {
       return new Response(
-        JSON.stringify({`Bookeo request failed: ${bookeo_result.match}` }),
+        JSON.stringify(`Bookeo request failed: ${bookeo_result.match}`),
         {
           status: 403,
           headers: corsHeaders
