@@ -83,7 +83,7 @@ export default async (request, context) => {
   // If the origin is allowed, add CORS response headers so the browser knows you allow that origin:
   const corsHeaders = {
     "Access-Control-Allow-Origin": allowedOrigin,
-    "Access-Control-Allow-Methods": "GET, POST OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization"
   };
 
