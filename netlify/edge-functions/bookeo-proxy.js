@@ -4,7 +4,7 @@
 
 import { createHmac } from 'crypto';
 //import { Redis } from "@upstash/redis/with-fetch";
-import { Redis } from "https://deno.land/x/upstash_redis/mod.ts";
+import { Redis } from "https://esm.sh/@upstash/redis";
 
 const redis = new Redis({
   url: Netlify.env.get("UPSTASH_REDIS_REST_TOKEN"),
