@@ -179,7 +179,7 @@ export default async (request, context) => {
   } catch (error) {
     console.error('Error in Netlify function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
-      statusCode: 500,
+      status: 500,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': allowedOrigin,
