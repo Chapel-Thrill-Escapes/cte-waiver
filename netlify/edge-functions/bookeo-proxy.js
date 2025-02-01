@@ -154,7 +154,7 @@ export default async (request, context) => {
       await redis.set(`session:${publicKey}`, redisData.toString(), { ex: 600 }); // NOTE: this is a TTL value and is set to expire in 10 minutes
 
       // Finally return the handshake value to the client if validation successfull 
-      return new Response(redisData.handshake.toString(), {
+      return new Response(JSON.stringify(handshake), {
         status: 200,
         headers: corsHeaders
       });
