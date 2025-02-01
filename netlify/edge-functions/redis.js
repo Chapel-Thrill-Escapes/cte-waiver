@@ -41,27 +41,23 @@ export default async (request, context) => {
         if (!searchParams.get("sessionId")) {
             return new Response("Improper request", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
         }
-        const sessionId = searchParams.get("sessionId");
+        const publicKey = searchParams.get("sessionId");
 
         // Parse auth header provided by client
         const authHeader = request.headers.get("Authorization") || "";
-        const publicKey = authHeader.replace(/^Bearer\s+/i, "");
-        if (!publicKey) {
+        const handshake = authHeader.replace(/^Bearer\s+/i, "");
+        if (!handshake) {
             return new Response("Missing authorization", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
         }
 
         // 1. Validate if the handshake is still in the Redis DB; TTL value with set exp at 10 minutes 
-        const redisKey = await redis.get(`session:${publicKey}`);
+        const redisKey = await redis.hget(`session:${handshake}`, 'handshake');
         if (!redisKey) {
             return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
         }
-
         // 2. Validate the handshake with the expected hash:
-        const secretKey = Netlify.env.get("RSA_PRIVATE_KEY");
-        const expectedHash = crypto.createHmac('MD5', secretKey)
-                            .update(publicKey)
-                            .digest('hex');
-        const valid = (publicKey === expectedHash);
+        const expectedHash = createHmac('MD5', Netlify.env.get("RSA_PRIVATE_KEY")).update(publicKey).digest('hex');
+        const valid = (handshake === expectedHash);
         if (!valid) {
             return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
         }
@@ -69,6 +65,7 @@ export default async (request, context) => {
         if (redisKey && valid) {
             return new Response("Successful authorization", { status: 200, headers: corsHeaders }); // Assume success after checks
         }
+        
     } catch (error) {
       // Catch any runtime errors
       return new Response(JSON.stringify({ error: error.message }), {  // Return 500 - server error if runtime error
