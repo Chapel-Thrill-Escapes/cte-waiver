@@ -11,66 +11,57 @@ const redis = new Redis({
   });
 
 export default async (request, context) => {
-    // Get the Origin header from the request
-    const originHeader = request.headers.get("origin") || "";
   
-    // If the Origin doesn’t match the CTE domain, block the request
-    const allowedOrigin = "https://www.chapelthrillescapes.com";
-    if (originHeader !== allowedOrigin) {
-      return new Response("Unauthorized", { status: 401 });
-    }
+  const originHeader = request.headers.get("origin") || ""; // Get the Origin header from the request
   
-    // If the origin is allowed, add CORS response headers so the browser knows you allow that origin:
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": allowedOrigin,
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization"
-    };
+  const allowedOrigin = "https://www.chapelthrillescapes.com";
+  if (originHeader !== allowedOrigin) {     // If the Origin doesn’t match the allowed domain, block the request
+    return new Response("Unauthorized", { status: 401 });
+  }
   
-    // Handle OPTIONS (the preflight check)
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 200,
-        headers: corsHeaders
-      });
-    }
-    
-    try {
-        // Parse incoming URI component of the Session Id
-        const { searchParams } = new URL(request.url);
-        if (!searchParams.get("sessionId")) {
-            return new Response("Improper request", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
-        }
-        const publicKey = searchParams.get("sessionId");
-
-        // Parse auth header provided by client
-        const authHeader = request.headers.get("Authorization") || "";
-        const handshake = authHeader.replace(/^Bearer\s+/i, "");
-        if (!handshake) {
-            return new Response("Missing authorization", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
-        }
-
-        // 1. Validate if the handshake is still in the Redis DB; TTL value with set exp at 10 minutes 
-        const redisKey = await redis.hget(`session:${handshake}`, 'handshake');
-        if (!redisKey) {
-            return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
-        }
-        // 2. Validate the handshake with the expected hash:
-        const expectedHash = createHmac('MD5', Netlify.env.get("RSA_PRIVATE_KEY")).update(publicKey).digest('hex');
-        const valid = (handshake === expectedHash);
-        if (!valid) {
-            return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
-        }
-
-        if (redisKey && valid) {
-            return new Response("Successful authorization", { status: 200, headers: corsHeaders }); // Assume success after checks
-        }
-        
-    } catch (error) {
-      // Catch any runtime errors
-      return new Response(JSON.stringify({ error: error.message }), {  // Return 500 - server error if runtime error
-        status: 500,
-        headers: corsHeaders
-      });
-    }
+  // If the origin is allowed, declare CORS response headers
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
   };
+
+  if (request.method === "OPTIONS") { // Handle OPTIONS (the preflight check)
+    return new Response(null, { status: 200, headers: corsHeaders }); 
+  }
+    
+  try {
+
+      const { searchParams } = new URL(request.url);  
+      const publicKey = searchParams.get("sessionId"); // Parse client Session Id URL param
+      if (!publicKey) {
+          return new Response("Improper request", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
+      }
+
+      const authHeader = request.headers.get("Authorization") || "";  // Parse client auth header
+      const handshake = authHeader.replace(/^Bearer\s+/i, "");
+      if (!handshake) {
+          return new Response("Missing authorization", { status: 401, headers: corsHeaders }); // Return response as invalid if missing
+      }
+
+      // 1. Validate if the handshake is still in the Redis DB; TTL value set exp at 10 minutes 
+      const redisKey = await redis.hget(`session:${handshake}`, 'handshake');
+      if (!redisKey) {
+          return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
+      }
+      // 2. Validate the handshake with the expected hash:
+      const expectedHash = createHmac('MD5', Netlify.env.get("RSA_PRIVATE_KEY")).update(publicKey).digest('hex');
+      const valid = (handshake === expectedHash);
+      if (!valid) {
+          return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
+      }
+
+      if (redisKey && valid) {  // Assume success after checks
+          return new Response("Successful authorization", { status: 200, headers: corsHeaders }); 
+      }
+
+  } catch (error) {   // Catch any runtime errors     
+    return new Response(JSON.stringify({ error: error.message }), {  status: 500, headers: corsHeaders }); // Return 500 - server error if runtime error
+  }
+
+};

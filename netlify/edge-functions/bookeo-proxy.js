@@ -151,10 +151,8 @@ export default async (request, context) => {
       //  CTE client <--> Netlify edge-functions <--> Upstash Redis Database 
       //  The reasoning behind this is that it is more secure than storing all the waiver data on the client side
       //  There is a two-step verification process for subsequent calls: (1) TTL sessionId hasn't expired, and (2) valid handshake HMAC hash
-      await redis.hset(`session:${handshake}`, 
-        redisData, 
-        { ex: 600 }
-      );
+      await redis.hset(`session:${handshake}`, redisData);
+      await redis.expire(`session:${handshake}`, 600);
 
       // Finally return the handshake value to the client if validation successfull 
       return new Response(JSON.stringify(handshake), {
