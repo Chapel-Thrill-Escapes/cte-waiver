@@ -66,7 +66,7 @@ export default async (request, context) => {
             return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
         }
 
-        if {redisKey && valid} {
+        if (redisKey && valid) {
             return new Response("Successful authorization", { status: 200, headers: corsHeaders }); // Assume success after checks
         }
     } catch (error) {
