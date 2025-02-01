@@ -31,7 +31,9 @@ export default function Page() {
             type="password"
             name="password"
             id="password"
+            placeholder="Password"
             value={enteredPassword}
+            className="w-full p-2 border rounded"
             onChange={(e) => setEnteredPassword(e.target.value)}
             style={{ margin: '0.5rem 0' }}
           />

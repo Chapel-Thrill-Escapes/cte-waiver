@@ -10,3 +10,6 @@
 [[edge_functions]]
   function = "validate-waiver"
   path = "/validate-waiver"
+[[edge_functions]]
+  function = "redis"
+  path = "/redis"
