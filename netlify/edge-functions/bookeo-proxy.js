@@ -140,7 +140,7 @@ export default async (request, context) => {
       await redis.hset(`session:${handshake}`, redisData);
       await redis.expire(`session:${handshake}`, 600);
       
-      return new Response(JSON.stringify(handshake), { status: 200, headers: corsHeaders }); // Return the handshake value to the client if validation successfull 
+      return new Response(handshake, { status: 200, headers: corsHeaders }); // Return the handshake value to the client if validation successfull 
 
     } else {
       return new Response( // Return auth fail if validation unsuccessful
