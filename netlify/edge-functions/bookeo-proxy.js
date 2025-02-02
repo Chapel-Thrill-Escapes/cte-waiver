@@ -100,9 +100,9 @@ export default async (request, context) => {
 
     // Modify the Booking Date string for use in the Bookeo API call
     const startTime = new Date(clientData.bookingDate);
-    startTime.setDate(startDate.getDate() - 5).toISOString(); // Adding buffer range of -5 days
+    startTime.setDate(startTime.getDate() - 5).toISOString(); // Adding buffer range of -5 days
     const endTime = new Date(clientData.bookingDate);
-    endTime.setDate(endDate.getDate() + 5).toISOString(); // Adding buffer range of +5 days
+    endTime.setDate(endTime.getDate() + 5).toISOString(); // Adding buffer range of +5 days
 
     // Make the GET request to the bookings data
     const baseUrl = 'https://api.bookeo.com/v2/bookings';
