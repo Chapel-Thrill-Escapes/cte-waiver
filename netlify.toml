@@ -5,11 +5,14 @@
   function = "bookeo-proxy"
   path = "/bookeo-proxy"
 [[edge_functions]]
-  function = "submit-proxy"
-  path = "/submit-proxy"
+  function = "waiver-sign"
+  path = "/waiver-sign"
 [[edge_functions]]
-  function = "validate-waiver"
-  path = "/validate-waiver"
+  function = "waiver-submit"
+  path = "/waiver-submit"
+[[edge_functions]]
+  function = "waiver-validate"
+  path = "/waiver-validate"
 [[edge_functions]]
   function = "redis"
   path = "/redis"

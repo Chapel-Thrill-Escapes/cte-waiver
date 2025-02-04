@@ -24,8 +24,7 @@ export function QrCodeScanner() {
         const [key, value] = pair.split("=");
         params[key] = encodeURIComponent(value);
       });
-      const baseUrl = 'https://cte-waiver.netlify.app/validate-waiver';
-      
+      const baseUrl = 'https://cte-waiver.netlify.app/waiver-validate';
       const response = await fetch(`${baseUrl}?customerId=${params.p1}&participantId=${params.p2}&waiverConfirm=${params.p3}&userHash=${params.p4}&sessionId=${params.p5}`);
       const result = await response.json();
 

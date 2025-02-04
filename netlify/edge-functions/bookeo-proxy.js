@@ -112,7 +112,7 @@ export default async (request, context) => {
     const response = await fetch(getUrl);
 
     if (!response.ok) { // Throw an error if unexpected Bookeo API request fail
-      throw new Error(`Bookeo request failed: ${response.statusText}`);
+      return new Response(JSON.stringify({ error: `Bookeo request failed: ${response.statusText}` }), { status: response.status, headers: corsHeaders });
     }
 
     // If successful, parse the Bookeo data for a match with the Client data

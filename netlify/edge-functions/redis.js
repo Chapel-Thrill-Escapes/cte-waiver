@@ -45,19 +45,20 @@ export default async (request, context) => {
       }
 
       // 1. Validate if the handshake is still in the Redis DB; TTL value set exp at 10 minutes 
-      const redisKey = await redis.hget(`session:${handshake}`, 'handshake');
+      const redisData = await redis.hgetall(`session:${handshake}`);
+      const redisKey = redisData.handshake;
       if (!redisKey) {
           return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
       }
-      // 2. Validate the handshake with the expected hash:
+      // 2. Validate the handshake with the expected hash
       const expectedHash = createHmac('MD5', Netlify.env.get("RSA_PRIVATE_KEY")).update(publicKey).digest('hex');
       const valid = (handshake === expectedHash);
       if (!valid) {
           return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
       }
 
-      if (redisKey && valid) {  // Assume success after checks
-          return new Response("Successful authorization", { status: 200, headers: corsHeaders }); 
+      if (redisKey && valid) {  // Assume success after checks; return redis data for rendering client-side
+          return new Response(JSON.stringify(redisData), { status: 200, headers: corsHeaders }); 
       }
 
   } catch (error) {   // Catch any runtime errors     
