@@ -38,6 +38,7 @@ export default async (request, context) => {
         return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
     }
     
+    console.log(request);
     const clientData = await request.json(); // Parse incoming JSON data; return response with an error if missing
     if (!clientData) {
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
@@ -85,10 +86,11 @@ export default async (request, context) => {
     }
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
-    redis.delete(`session:${handshake}`);
+    // redis.delete(`session:${handshake}`);
     
     const googleResult = await googleResp.text(); 
     // Return with CORS headers
+    console.log(`Waiver Submit Success; Response data: ${googleResult}`);
     return new Response(JSON.stringify(googleResult), { status: 200, headers: corsHeaders });
 
   } catch (error) { // Catch any runtime errors and return error message with CORS headers
