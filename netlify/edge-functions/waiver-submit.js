@@ -38,7 +38,6 @@ export default async (request, context) => {
         return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
     }
     
-    console.log(request);
     const clientData = await request.json(); // Parse incoming JSON data; return response with an error if missing
     if (!clientData) {
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
