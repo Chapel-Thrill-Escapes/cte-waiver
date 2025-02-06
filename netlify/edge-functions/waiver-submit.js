@@ -4,6 +4,7 @@
 // Runs in Deno on Netlify's Edge network.
 
 import { createHmac } from 'crypto';
+import { Redis } from "https://esm.sh/@upstash/redis";
 
 const redis = new Redis({
   url: Netlify.env.get("UPSTASH_REDIS_REST_URL"),

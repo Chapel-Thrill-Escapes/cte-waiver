@@ -6,6 +6,7 @@
 
 import crypto from 'node:crypto';
 import { decode as b64decode } from "https://deno.land/std@0.149.0/encoding/base64.ts";
+import { Redis } from "https://esm.sh/@upstash/redis";
 
 const redis = new Redis({
     url: Netlify.env.get("UPSTASH_REDIS_REST_URL"),
