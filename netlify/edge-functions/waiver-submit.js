@@ -17,7 +17,8 @@ export default async (request, context) => {
 
   const allowedOrigin = "https://www.chapelthrillescapes.com";
   if (originHeader !== allowedOrigin) { 
-      return new Response("Unauthorized", { status: 401 }); // If the Origin doesn’t match the allowed domain, block the request
+    console.log("Waiver Submit: Unauthorized domain");
+    return new Response("Unauthorized", { status: 401 }); // If the Origin doesn’t match the allowed domain, block the request
   }
   
   const corsHeaders = { // If the origin is allowed, set CORS response headers for server responses
@@ -35,18 +36,21 @@ export default async (request, context) => {
     const { searchParams } = new URL(request.url); // Parse incoming URI component of the Session Id; return response with an error if missing
     const publicKey = searchParams.get("sessionId");
     if (!publicKey) {
-        return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
+      console.log("Waiver Submit: Missing valid request params");
+      return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
     }
     
     const clientData = await request.json(); // Parse incoming JSON data; return response with an error if missing
     if (!clientData) {
+      console.log("Waiver Submit: Missing request body");
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
     }
 
     const authHeader = request.headers.get("Authorization") || "";  // Parse client auth header; return response with an error if missing
     const handshake = authHeader.replace(/^Bearer\s+/i, "");
     if (!handshake) {
-        return new Response("Missing authorization", { status: 401, headers: corsHeaders });
+      console.log("Waiver Submit: Missing authorization");
+      return new Response("Missing authorization", { status: 401, headers: corsHeaders });
     }
 
     /// Two-step authorization  -----------------------------------------------------------------------------------------------
@@ -54,13 +58,15 @@ export default async (request, context) => {
     const redisData = await redis.hgetall(`session:${handshake}`);
     const redisKey = redisData.handshake;
     if (!redisKey) {
-        return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
+      console.log("Waiver Submit: Expired authorization");
+      return new Response("Expired authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if expired or missing
     }
     // 2. Validate the handshake with the expected hash
     const expectedHash = createHmac('MD5', Netlify.env.get("RSA_PRIVATE_KEY")).update(publicKey).digest('hex');
     const valid = (handshake === expectedHash);
     if (!valid) {
-        return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
+      console.log("Waiver Submit: Invalid authorization");
+      return new Response("Invalid authorization", { status: 401, headers: corsHeaders });  // Return response as invalid if client hash incorrect
     }
     /// -----------------------------------------------------------------------------------------------------------------------
 
@@ -82,6 +88,7 @@ export default async (request, context) => {
     });
 
     if (!googleResp.ok) {
+      console.log("Waiver Submit: Form post failed");
       return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.statusText}` }), { status: googleResp.status, headers: corsHeaders });
     }
 

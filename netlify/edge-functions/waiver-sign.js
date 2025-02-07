@@ -136,7 +136,7 @@ export default async (request, context) => {
         };
 
     // Return with CORS headers
-    console.log(`Waiver Sign Success; Response data: ${JSON.stringify(responseData)}`);
+    console.log('Waiver Sign Success');
     return new Response(JSON.stringify(responseData), { status: 200, headers: corsHeaders });
 
   } catch (error) { // Catch any runtime errors and return error message with CORS headers
