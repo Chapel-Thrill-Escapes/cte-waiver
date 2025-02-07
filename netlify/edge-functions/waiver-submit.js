@@ -69,7 +69,8 @@ export default async (request, context) => {
     Object.entries(redisData).forEach(([key, value]) => {
       googleData.append(key, String(value));
     });
-    googleData.append("base64String", clientData);
+    // googleData.append("base64String", clientData);
+    console.log(googleData);
 
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g. https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
@@ -87,9 +88,9 @@ export default async (request, context) => {
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
     // redis.delete(`session:${handshake}`);
     
-    const googleResult = await googleResp.text(); 
     // Return with CORS headers
-    console.log(`Waiver Submit Success; Response data: ${googleResult}`);
+    console.log(`Waiver Submit Success`);
+    const googleResult = await googleResp.text(); 
     return new Response(JSON.stringify(googleResult), { status: 200, headers: corsHeaders });
 
   } catch (error) { // Catch any runtime errors and return error message with CORS headers
