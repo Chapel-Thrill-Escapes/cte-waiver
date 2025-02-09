@@ -93,7 +93,7 @@ export default async (request, context) => {
     }
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
-    redis.delete(`session:${handshake}`);
+    //assert redis.hdel("myhash", "field1", "field2") == 2
     
     // Return with CORS headers
     console.log(`Waiver Submit Success`);
