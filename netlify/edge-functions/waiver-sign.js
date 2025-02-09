@@ -84,7 +84,7 @@ export default async (request, context) => {
     const baseUrl = 'https://api.bookeo.com/v2/customers';
     let getUrl;
     let putUrl;
-    if (redisData.isParticipant === 'true') {
+    if (redisData.isParticipant === true) {
      getUrl = `${baseUrl}/${redisData.customerId}/linkedpeople/${redisData.personId}?apiKey=${apiKey}&secretKey=${secretKey}`;
      putUrl = `${baseUrl}/${redisData.customerId}/linkedpeople/${redisData.personId}?apiKey=${apiKey}&secretKey=${secretKey}&mode=backend`;
     } else {
