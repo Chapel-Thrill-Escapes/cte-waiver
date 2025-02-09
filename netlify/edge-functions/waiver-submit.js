@@ -40,7 +40,7 @@ export default async (request, context) => {
       return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
     }
     
-    const clientData = await request.json(); // Parse incoming JSON data; return response with an error if missing
+    const clientData = await request.blob(); // Parse incoming PDF blob; return response with an error if missing
     if (!clientData) {
       console.log("Waiver Submit: Missing request body");
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
@@ -93,7 +93,7 @@ export default async (request, context) => {
     }
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
-    // redis.delete(`session:${handshake}`);
+    redis.delete(`session:${handshake}`);
     
     // Return with CORS headers
     console.log(`Waiver Submit Success`);
