@@ -56,9 +56,11 @@ function checkBookingData(bookeoData, targetFirst, targetLast) {
           productName: booking.productName
         };
         // Look up the RATUN9 field in their customFields array
-        //const waiverConfirm = person.customFields?.find(
-        //  (field) => field.id === "RATUN9"
-        //) || null;
+        const waiverConfirm = person.customFields?.find(
+          (field) => field.id === "RATUN9"
+        ) || null;
+        if (waiverConfirm) {console.log("Looks like there's already a waiver for this customer!");}
+
         return return_data
       }
     }

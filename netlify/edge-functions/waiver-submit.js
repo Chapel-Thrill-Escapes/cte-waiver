@@ -70,21 +70,17 @@ export default async (request, context) => {
     }
     /// -----------------------------------------------------------------------------------------------------------------------
 
-    // 1. Make POST (x-www-form-urlencoded) call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
-    const googleData = new URLSearchParams();
+    // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
+    const googleData = new FormData();
+    googleData.append('pdfFile', clientData, 'document.pdf'); // 'pdfFile' is the key, and 'document.pdf' sets a filename
     Object.entries(redisData).forEach(([key, value]) => {
       googleData.append(key, String(value));
     });
-    // googleData.append("base64String", clientData);
-    console.log(googleData);
 
-    const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g. https://script.google.com/macros/s/...
+    const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: googleData.toString()
+      body: formData
     });
 
     if (!googleResp.ok) {
