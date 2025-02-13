@@ -74,7 +74,7 @@ export default async (request, context) => {
     const googleData = new FormData();
     googleData.append('pdfFile', clientData, 'document.pdf'); // 'pdfFile' is the key, and 'document.pdf' sets a filename
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
-    googleData.append('AUTH_TOKEN', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
+    googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
     Object.entries(redisData).forEach(([key, value]) => {
       googleData.append(key, String(value));
     });
