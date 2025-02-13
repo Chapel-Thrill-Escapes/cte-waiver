@@ -96,8 +96,7 @@ export default async (request, context) => {
     
     // Return with CORS headers
     console.log(`Waiver Submit Success`);
-    const googleResult = await googleResp.text(); 
-    return new Response(JSON.stringify(googleResult), { status: 200, headers: corsHeaders });
+    return new Response(JSON.stringify("Success"), { status: 200, headers: corsHeaders });
 
   } catch (error) { // Catch any runtime errors and return error message with CORS headers
     console.error('Error in function:', error);
