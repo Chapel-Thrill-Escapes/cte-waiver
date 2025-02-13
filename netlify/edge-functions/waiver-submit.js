@@ -84,9 +84,10 @@ export default async (request, context) => {
       method: 'POST',
       body: googleData
     });
+    const googleResult = googleResp.json()
 
-    if (!googleResp.ok) {
-      console.log("Waiver Submit: Form post failed");
+    if (googleResult.result === "error") {
+      console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
       return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.statusText}` }), { status: googleResp.status, headers: corsHeaders });
     }
 
