@@ -75,16 +75,18 @@ export default async (request, context) => {
     googleData.append('pdfFile', clientData, 'document.pdf'); // 'pdfFile' is the key, and 'document.pdf' sets a filename
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
     googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
-    Object.entries(redisData).forEach(([key, value]) => {
-      googleData.append(key, String(value));
-    });
+    for (let key in redisData) {
+      if (redisData.hasOwnProperty(key)) {
+        googleData.append(key, redisData[key]);
+      }
+    }
 
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
       body: googleData
     });
-    const googleResult = googleResp.json()
+    const googleResult = googleResp.json();
 
     if (googleResult.result === "error") {
       console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);

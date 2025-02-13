@@ -128,11 +128,11 @@ export default async (request, context) => {
       };
     await redis.hset(`session:${handshake}`, newRedisData);
 
-    const qrCode = `p1=${redisData.customerId}&p2=${redisData.personId}&p3=${dsaSignature_trun}&p4=${handshake}&p5=${publicKey}`;
+    // const qrCode = `p1=${redisData.customerId}&p2=${redisData.personId}&p3=${dsaSignature_trun}&p4=${handshake}&p5=${publicKey}`;
     const responseData = { // Build client response data that will be needed for the next step    
         ...redisData,
-        dsaSignature_trun: dsaSignature_trun,
-        qrCode: qrCode
+        dsaSignature_trun: dsaSignature_trun // ,
+        // qrCode: qrCode
         };
 
     // Return with CORS headers
