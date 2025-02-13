@@ -40,8 +40,8 @@ export default async (request, context) => {
       return new Response("Missing valid request params", { status: 401, headers: corsHeaders });
     }
     
-    const clientData = await request.blob(); // Parse incoming PDF blob; return response with an error if missing
-    if (!clientData) {
+    const clientBlob = await request.blob(); // Parse incoming PDF blob; return response with an error if missing
+    if (!clientBlob) {
       console.log("Waiver Submit: Missing request body");
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
     }
@@ -72,7 +72,11 @@ export default async (request, context) => {
 
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
-    googleData.append('pdfFile', clientData, 'document.pdf'); // 'pdfFile' is the key, and 'document.pdf' sets a filename
+    const file = new File([clientBlob], "document.pdf", {
+      type: clientBlob.type,
+      lastModified: Date.now(),
+    });
+    googleData.append('pdfFile', file); // 'pdfFile' is the key, and 'document.pdf' sets a filename
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
     googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
     for (let key in redisData) {
@@ -86,11 +90,11 @@ export default async (request, context) => {
       method: 'POST',
       body: googleData
     });
-    const googleResult = googleResp.json();
+    const googleResult = await googleResp.json();
 
     if (googleResult.result === "error") {
       console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
-      return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.statusText}` }), { status: googleResp.status, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500, headers: corsHeaders });
     }
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
