@@ -82,7 +82,7 @@ export default async (request, context) => {
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
-      body: formData
+      body: googleData
     });
 
     if (!googleResp.ok) {
