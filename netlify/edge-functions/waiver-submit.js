@@ -84,6 +84,7 @@ export default async (request, context) => {
         googleData.append(key, redisData[key]);
       }
     }
+    console.log(googleData);
 
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
