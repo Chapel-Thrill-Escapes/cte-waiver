@@ -73,7 +73,10 @@ export default async (request, context) => {
 
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
-    googleData.append('pdfFile', clientBlob,`ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`); // 'pdfFile' is the key, and 'document.pdf' sets a filename
+    googleData.append('mimeType', 'application/pdf');
+    googleData.append('filename', `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
+    googleData.append('pdfFile', clientBlob, `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`); // Optional: if you use a file field.
+
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
     googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
     for (let key in redisData) {
