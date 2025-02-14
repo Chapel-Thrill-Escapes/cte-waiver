@@ -45,7 +45,6 @@ export default async (request, context) => {
       console.log("Waiver Submit: Missing request body");
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
     }
-    console.log(clientBlob);
 
     const authHeader = request.headers.get("Authorization") || "";  // Parse client auth header; return response with an error if missing
     const handshake = authHeader.replace(/^Bearer\s+/i, "");
@@ -73,9 +72,16 @@ export default async (request, context) => {
 
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
-    googleData.append('mimeType', 'application/pdf');
-    googleData.append('filename', `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
-    googleData.append('pdfFile', clientBlob, `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`); // Optional: if you use a file field.
+    //googleData.append('mimeType', 'application/pdf');
+    //googleData.append('filename', `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
+    // googleData.append('pdfFile', clientBlob, `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`); // Optional: if you use a file field.
+
+    // Suppose pdfBlob is your existing Blob data.
+    const pdfFile = new File([clientBlob], `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`, {
+      type: "application/pdf",
+      lastModified: Date.now()
+    });
+    googleData.append("pdfFile", pdfFile);
 
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
     googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
@@ -84,7 +90,6 @@ export default async (request, context) => {
         googleData.append(key, redisData[key]);
       }
     }
-    console.log(googleData);
 
     const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
