@@ -72,8 +72,8 @@ export default async (request, context) => {
 
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
-    const file = new File([clientBlob], "document.pdf", {
-      type: clientBlob.type,
+    const file = new File([clientBlob], `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`, {
+      type: 'application/pdf',
       lastModified: Date.now(),
     });
     googleData.append('pdfFile', file); // 'pdfFile' is the key, and 'document.pdf' sets a filename
