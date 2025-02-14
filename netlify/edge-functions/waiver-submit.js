@@ -45,6 +45,7 @@ export default async (request, context) => {
       console.log("Waiver Submit: Missing request body");
       return new Response("Missing request body", { status: 401, headers: corsHeaders });
     }
+    console.log(clientBlob);
 
     const authHeader = request.headers.get("Authorization") || "";  // Parse client auth header; return response with an error if missing
     const handshake = authHeader.replace(/^Bearer\s+/i, "");
@@ -72,11 +73,7 @@ export default async (request, context) => {
 
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
-    const file = new File([clientBlob], `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`, {
-      type: 'application/pdf',
-      lastModified: Date.now(),
-    });
-    googleData.append('pdfFile', file); // 'pdfFile' is the key, and 'document.pdf' sets a filename
+    googleData.append('pdfFile', clientBlob,`ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`); // 'pdfFile' is the key, and 'document.pdf' sets a filename
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
     googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
     for (let key in redisData) {
