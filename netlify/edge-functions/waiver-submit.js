@@ -74,7 +74,6 @@ export default async (request, context) => {
     const googleData = new FormData();
 
     googleData.append("pdfFile", clientBlob, `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
-    googleData.append("mimeType", "application/pdf");
     googleData.append("filename", `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
 
 
