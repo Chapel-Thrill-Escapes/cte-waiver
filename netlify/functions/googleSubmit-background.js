@@ -3,7 +3,7 @@
 export async function handler(request, context) {
     try {
       // 1) Parse the payload (if any) from the triggering request
-      const payload = request.body;
+      const payload = JSON.parse(request.body || '{}');
       console.log('Background function invoked');
   
       // 2) Perform your long-running or asynchronous tasks here
@@ -29,10 +29,11 @@ export async function handler(request, context) {
   // Example "heavy lifting" function
   async function googlePost(payload) {
 
+    const payloadFormData = new FormData(payload);
     const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
-      body: payload
+      body: payloadFormData
     });
     const googleResult = await googleResp.json();
 
