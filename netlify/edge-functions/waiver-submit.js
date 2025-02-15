@@ -105,7 +105,6 @@ export default async (request, context) => {
 
     await fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit-background', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: googleData,
     });
 

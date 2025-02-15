@@ -29,7 +29,7 @@ export async function handler(event, context) {
   // Example "heavy lifting" function
   async function googlePost(payload) {
 
-    const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
+    const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
       body: payload
