@@ -1,17 +1,8 @@
 // netlify/functions/googleSubmit-background.js
-import Busboy from 'busboy';
 
 export async function handler(request, context) {
     try {
-        // Create a new Busboy instance using the incoming request headers
-        const busboy = new Busboy({ headers: request.headers });
-        const payload = {};
-
-        // Handle regular form fields
-        busboy.on('field', (fieldname, val) => {
-        payload[fieldname] = val;
-        });
-        console.log('Background function invoked');
+        const payload = await request.json();
     
         // 2 Perform your long-running or asynchronous tasks here
         await googlePost(payload);
@@ -31,10 +22,17 @@ export async function handler(request, context) {
   // Example "heavy lifting" function
   async function googlePost(payload) {
 
+    const formData = new FormData();
+    for (let key in payload) {
+        if (payload.hasOwnProperty(key)) {
+            formData.append(key, payload[key]);
+        }
+    }
+
     const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g., https://script.google.com/macros/s/...
     const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
-      body: payload
+      body: formData
     });
     const googleResult = await googleResp.json();
 
