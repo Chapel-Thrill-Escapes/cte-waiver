@@ -96,7 +96,7 @@ export default async (request, context) => {
     redisData.filename = `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`;
     redisData.pdfString = base64String;
 
-    await fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit', {
+    fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit', {
       method: 'POST',
       body: JSON.stringify(redisData),
     });
