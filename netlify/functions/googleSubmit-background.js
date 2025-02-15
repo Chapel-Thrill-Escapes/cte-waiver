@@ -1,9 +1,9 @@
 // netlify/functions/heavyComputation-background.js
 
-export async function handler(event, context) {
+export async function handler(request, context) {
     try {
       // 1) Parse the payload (if any) from the triggering request
-      const payload = event.body || '{}';
+      const payload = request.body;
       console.log('Background function invoked');
   
       // 2) Perform your long-running or asynchronous tasks here
@@ -38,6 +38,6 @@ export async function handler(event, context) {
 
     if (googleResult.result === "error") {
         console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
-        return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500, headers: corsHeaders });
+        return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
     }
   }  
