@@ -13,24 +13,18 @@ export async function handler(request, context) {
         });
         console.log('Background function invoked');
     
-        // 2) Perform your long-running or asynchronous tasks here
+        // 2 Perform your long-running or asynchronous tasks here
         await googlePost(payload);
     
-        // 3) You can return a response. 
+        // 3 You can return a response. 
         //    The response doesn’t go back to the "caller" as a normal response, 
         //    but Netlify will log it and it can help with debugging.
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'Background function completed successfully.' })
-        };
+        return new Response(JSON.stringify({ message: 'Background function completed successfully.' }), { status: 200 });
         
     } catch (err) {
       // Error logging
       console.error('Error in background function:', err);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Background function encountered an error.' })
-      };
+      return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
   }
   
@@ -46,9 +40,6 @@ export async function handler(request, context) {
 
     if (googleResult.result === "error") {
         console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
-        return { 
-            statusCode: 500,
-            body: JSON.stringify({ error: `Form post failed: ${googleResp.error}` })
-        };
+        return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
     }
   }  
