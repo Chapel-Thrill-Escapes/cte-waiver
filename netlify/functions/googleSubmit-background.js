@@ -2,7 +2,7 @@
 
 export async function handler(request, context) {
     try {
-        const payload = await request.json();
+        const payload = JSON.parse(request.body || '{}');
     
         // 2 Perform your long-running or asynchronous tasks here
         await googlePost(payload);
