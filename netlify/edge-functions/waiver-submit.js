@@ -86,20 +86,31 @@ export default async (request, context) => {
     /// -----------------------------------------------------------------------------------------------------------------------
 
     // 1. Make POST call to background function app; this allows to respond to the client faster
-    const base64String = await blobToBase64(clientBlob);
-    if (!base64String) {
-      console.log("Did not create PDF string ");
-      return new Response("Invalid Google POST request", { status: 500, headers: corsHeaders });  // Return response as invalid if base64 fail
-    }
-    const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
-    redisData.authToken = GOOGLE_AUTH_TOKEN;
-    redisData.filename = `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`;
-    redisData.pdfString = base64String;
+    const googleData = new FormData();
 
-    await fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit', {
+    const base64String = await blobToBase64(clientBlob);
+    googleData.append("pdfString", base64String);
+    googleData.append("filename", `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
+
+    const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
+    googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
+    for (let key in redisData) {
+      if (redisData.hasOwnProperty(key)) {
+        googleData.append(key, redisData[key]);
+      }
+    }
+
+    const googleWebAppUrl = Netlify.env.get("GOOGLE_WEBAPP_URL"); // e.g., https://script.google.com/macros/s/...
+    const googleResp = await fetch(googleWebAppUrl, {
       method: 'POST',
-      body: JSON.stringify(redisData),
+      body: googleData
     });
+    const googleResult = await googleResp.json();
+
+    if (googleResult.result === "error") {
+      console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
+      return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500, headers: corsHeaders });
+    }
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
     redis.del(`session:${handshake}`);
@@ -114,3 +125,12 @@ export default async (request, context) => {
   }
 
 };
+
+
+//redisData.filename = `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`;
+//redisData.pdfString = base64String;
+
+//await fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit', {
+//  method: 'POST',
+//  body: JSON.stringify(redisData),
+//});
