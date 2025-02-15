@@ -3,9 +3,12 @@
 export async function handler(request, context) {
     try {
         const payload = JSON.parse(request.body || '{}');
-    
+        if (payload) {
+            console.log("Background function invoked");
+        }
+
         // 2 Perform your long-running or asynchronous tasks here
-        await googlePost(payload);
+        googlePost(payload);
     
         // 3 You can return a response. 
         //    The response doesn’t go back to the "caller" as a normal response, 
@@ -20,7 +23,7 @@ export async function handler(request, context) {
   }
   
   // Example "heavy lifting" function
-  async function googlePost(payload) {
+function googlePost(payload) {
 
     const formData = new FormData();
     for (let key in payload) {
