@@ -24,12 +24,12 @@ export async function handler(event, context) {
           method: 'POST',
           body: formData
         });
-        const googleResult = await googleResp.json();
+        // const googleResult = await googleResp.json();
     
-        if (googleResult.result === "error") {
-            console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
-            return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
-        }
+        // if (googleResult.result === "error") {
+        //    console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
+        //    return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
+        //}
     
         // 3 You can return a response. 
         //    The response doesn’t go back to the "caller" as a normal response, 
