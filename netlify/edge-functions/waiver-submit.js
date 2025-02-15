@@ -11,6 +11,21 @@ const redis = new Redis({
   token: Netlify.env.get("UPSTASH_REDIS_REST_TOKEN"),
 });
 
+// Utility function to convert a Blob to a Base64 string.
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // reader.result will be something like "data:application/pdf;base64,JVBERi0xLjQKJ..."
+      // We remove the prefix to extract only the Base64 code.
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(blob);
+  });
+}
+
 export default async (request, context) => {
 
   const originHeader = request.headers.get("origin") || ""; // Get the Origin header from the request
@@ -73,7 +88,8 @@ export default async (request, context) => {
     // 1. Make POST call to custom Google Script for recording all the waiver data on a Google sheets for long-term storage
     const googleData = new FormData();
 
-    googleData.append("pdfFile", clientBlob, `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
+    const base64String = await blobToBase64(clientBlob);
+    googleData.append("pdfString", base64String);
     googleData.append("filename", `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
 
 
