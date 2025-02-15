@@ -1,10 +1,10 @@
-// netlify/functions/heavyComputation-background.js
+// netlify/functions/googleSubmit-background.js
 import Busboy from 'busboy';
 
 export async function handler(request, context) {
     try {
         // Create a new Busboy instance using the incoming request headers
-        const busboy = new Busboy({ headers: req.headers });
+        const busboy = new Busboy({ headers: request.headers });
         const payload = {};
 
         // Handle regular form fields
@@ -12,16 +12,6 @@ export async function handler(request, context) {
         payload[fieldname] = val;
         });
         console.log('Background function invoked');
-
-        // Authenticate using auth token
-        const expectedToken = process.env.GOOGLE_AUTH_TOKEN;
-        const clientToken = payload['authToken'];
-        if (expectedToken !==clientToken ) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ error: 'Background function encountered an error.' })
-            };
-        }
     
         // 2) Perform your long-running or asynchronous tasks here
         await googlePost(payload);
