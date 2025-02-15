@@ -1,11 +1,15 @@
 // netlify/functions/googleSubmit-background.js
 
-export async function handler(request, context) {
+export async function handler(event, context) {
     try {
-        const payload = JSON.parse(request.body || '{}');
-        if (payload) {
-            console.log("Background function invoked");
+        var payload = JSON.parse(event.body || '{}');
+        if (!payload) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Background function encountered an error.' })
+            };    
         }
+        console.log("Background function invoked");
 
         // 2 Perform your long-running or asynchronous tasks here
         const formData = new FormData();
@@ -30,11 +34,17 @@ export async function handler(request, context) {
         // 3 You can return a response. 
         //    The response doesn’t go back to the "caller" as a normal response, 
         //    but Netlify will log it and it can help with debugging.
-        return new Response(JSON.stringify({ message: 'Background function completed successfully.' }), { status: 200 });
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: 'Background function completed successfully.' })
+        };
         
     } catch (err) {
       // Error logging
       console.error('Error in background function:', err);
-      return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Background function encountered an error.' })
+      };
     }
   }
