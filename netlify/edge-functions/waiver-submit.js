@@ -92,20 +92,13 @@ export default async (request, context) => {
       return new Response("Invalid Google POST request", { status: 500, headers: corsHeaders });  // Return response as invalid if base64 fail
     }
     const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
-
-    const googleData = new FormData();
-    googleData.append("pdfString", base64String);
-    googleData.append("filename", `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
-    googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
-    for (let key in redisData) {
-      if (redisData.hasOwnProperty(key)) {
-        googleData.append(key, redisData[key]);
-      }
-    }
+    redisData.authToken = GOOGLE_AUTH_TOKEN;
+    redisData.filename = `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`;
+    redisData.pdfString = base64String;
 
     await fetch('https://cte-waiver.netlify.app/.netlify/functions/googleSubmit-background', {
       method: 'POST',
-      body: googleData,
+      body: JSON.stringify(redisData),
     });
 
     // Delete Redis DB session as it is no longer needed; this will also prevent resubmits by the same session
