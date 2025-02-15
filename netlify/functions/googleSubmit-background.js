@@ -8,7 +8,24 @@ export async function handler(request, context) {
         }
 
         // 2 Perform your long-running or asynchronous tasks here
-        googlePost(payload);
+        const formData = new FormData();
+        for (let key in payload) {
+            if (payload.hasOwnProperty(key)) {
+                formData.append(key, payload[key]);
+            }
+        }
+    
+        const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g., https://script.google.com/macros/s/...
+        const googleResp = await fetch(googleWebAppUrl, {
+          method: 'POST',
+          body: formData
+        });
+        const googleResult = await googleResp.json();
+    
+        if (googleResult.result === "error") {
+            console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
+            return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
+        }
     
         // 3 You can return a response. 
         //    The response doesn’t go back to the "caller" as a normal response, 
@@ -21,26 +38,3 @@ export async function handler(request, context) {
       return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
   }
-  
-  // Example "heavy lifting" function
-function googlePost(payload) {
-
-    const formData = new FormData();
-    for (let key in payload) {
-        if (payload.hasOwnProperty(key)) {
-            formData.append(key, payload[key]);
-        }
-    }
-
-    const googleWebAppUrl = process.env.GOOGLE_WEBAPP_URL; // e.g., https://script.google.com/macros/s/...
-    const googleResp = await fetch(googleWebAppUrl, {
-      method: 'POST',
-      body: formData
-    });
-    const googleResult = await googleResp.json();
-
-    if (googleResult.result === "error") {
-        console.log(`Waiver Submit: Form post failed; ${googleResult.error}`);
-        return new Response(JSON.stringify({ error: `Form post failed: ${googleResp.error}` }), { status: 500 });
-    }
-  }  
