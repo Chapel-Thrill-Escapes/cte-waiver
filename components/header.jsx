@@ -5,6 +5,7 @@ import Link from 'next/link';
 const navItems = [
     { linkText: 'Home', href: '/' },
     { linkText: 'Waiver Validation', href: '/waiver' },
+    { linkText: 'Analytics', href: '/analytics' },
 ];
 
 export function Header() {
