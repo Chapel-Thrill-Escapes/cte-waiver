@@ -92,8 +92,10 @@ export default async (request, context) => {
     googleData.append("pdfString", base64String);
     googleData.append("filename", `ChapelThrillEscapesWaiver-${redisData.dsaSignature_trun}.pdf`);
 
-    const GOOGLE_AUTH_TOKEN = Netlify.env.get("GOOGLE_AUTH_TOKEN");
-    googleData.append('authToken', GOOGLE_AUTH_TOKEN); // The form expects an AUTH_TOKEN for secure POST requests 
+    const GooglePublicKey = Netlify.env.get("GOOGLE_PUBLIC_KEY");
+    const GoogleHash = Netlify.env.get("GOOGLE_HASH");
+    googleData.append('publicKey', GooglePublicKey); // The form expects an public key for secure POST requests 
+    googleData.append('hash', GoogleHash); // The form expects a hash for secure POST requests 
     for (let key in redisData) {
       if (redisData.hasOwnProperty(key)) {
         googleData.append(key, redisData[key]);
