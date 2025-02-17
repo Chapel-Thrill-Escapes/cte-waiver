@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
-import RevenueChart from '../components/RevenueChart';
+import RevenueChart from 'components/RevenueChart';
 
 const fetcher = (url) => fetch(url, {
     headers: {
