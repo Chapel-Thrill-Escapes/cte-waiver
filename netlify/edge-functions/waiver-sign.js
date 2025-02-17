@@ -15,22 +15,24 @@ const redis = new Redis({
 
 export default async (request, context) => {
     
-    const originHeader = request.headers.get("origin") || ""; // Get the Origin header from the request
-
-    const allowedOrigin = "https://www.chapelthrillescapes.com";
-    if (originHeader !== allowedOrigin) { 
-        return new Response("Unauthorized", { status: 401 }); // If the Origin doesn’t match the allowed domain, block the request
-    }
+  const allowedOrigins = Netlify.env.get("ALLOWED_ORIGINS")?.split(",") || [];
+  const origin = request.headers.get("origin");
+  if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" }
+    });
+  }
     
-    const corsHeaders = { // If the origin is allowed, set CORS response headers for server responses
-        "Access-Control-Allow-Origin": allowedOrigin,
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-    };
+  const corsHeaders = { // If the origin is allowed, set CORS response headers for server responses
+      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization"
+  };
 
-    if (request.method === "OPTIONS") { // Handle OPTIONS (the preflight check)
-        return new Response(null, { status: 200, headers: corsHeaders });
-    }
+  if (request.method === "OPTIONS") { // Handle OPTIONS (the preflight check)
+      return new Response(null, { status: 200, headers: corsHeaders });
+  }
   
   try {    
 

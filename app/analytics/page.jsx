@@ -1,88 +1,137 @@
 "use client";
 
-import React from 'react';
-import { ResponsiveBar } from '@nivo/bar';
+import { useState } from 'react';
+import useSWR from 'swr';
+import RevenueChart from '../components/RevenueChart';
 
-const data = [
-    { month: 'Jan', Revenue: 120000, Cost: 80000 },
-    { month: 'Feb', Revenue: 150000, Cost: 90000 },
-    { month: 'Mar', Revenue: 170000, Cost: 110000 },
-    { month: 'Apr', Revenue: 140000, Cost: 95000 },
-    { month: 'May', Revenue: 160000, Cost: 100000 },
-    { month: 'Jun', Revenue: 180000, Cost: 120000 },
-  ];  
+const fetcher = (url) => fetch(url, {
+    headers: {
+      'x-internal-token': Netlify.env.get("INTERNAL_API_TOKEN")
+    }
+  }).then((res) => res.json());
 
-export default function Page() {
-    return (
-        <main className="flex flex-col gap-8 sm:gap-16">
-            <section className="flex flex-col items-start gap-3 sm:gap-4">
-                <h1 className="mb-0 text-primary">Sales Analytics</h1>
-            </section>
-            <div style={{ height: '500px' }}>
-                <ResponsiveBar
-                data={data}
-                keys={['Revenue', 'Cost']}
-                indexBy="month"
-                margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-                padding={0.3}
-                colors={{ scheme: 'nivo' }}
-                borderColor={{
-                    from: 'color',
-                    modifiers: [['darker', 1.6]],
-                }}
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Month',
-                    legendPosition: 'middle',
-                    legendOffset: 32,
-                }}
-                axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Amount ($)',
-                    legendPosition: 'middle',
-                    legendOffset: -40,
-                }}
-                labelSkipWidth={12}
-                labelSkipHeight={12}
-                labelTextColor={{
-                    from: 'color',
-                    modifiers: [['darker', 1.6]],
-                }}
-                legends={[
-                    {
-                    dataFrom: 'keys',
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 120,
-                    translateY: 0,
-                    itemsSpacing: 2,
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemDirection: 'left-to-right',
-                    itemOpacity: 0.85,
-                    symbolSize: 20,
-                    effects: [
-                        {
-                        on: 'hover',
-                        style: {
-                            itemOpacity: 1,
-                        },
-                        },
-                    ],
-                    },
-                ]}
-                animate={true}
-                motionStiffness={90}
-                motionDamping={15}
-                />
-            </div>
-        </main>
+  export default function Home() {
+    const [currencyFilter, setCurrencyFilter] = useState('ALL');
+    const [dateRange, setDateRange] = useState({
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      end: new Date().toISOString().split('T')[0]
+    });
+  
+    const { data, error, isValidating, mutate } = useSWR(
+      `/analytics/bookings?startTime=${dateRange.start}T00:00:00Z&endTime=${dateRange.end}T23:59:59Z`,
+      fetcher,
+      { 
+        refreshInterval: 300000,
+        revalidateOnFocus: false
+      }
     );
+  
+    // Add handleRefresh function
+    const handleRefresh = () => {
+      mutate();
+    };
+  
+    // Update date change handler to include validation
+    const handleDateChange = (e) => {
+      const newDate = e.target.value;
+      if (new Date(newDate) > new Date()) {
+        return; // Prevent future dates
+      }
+      setDateRange(prev => ({
+        ...prev,
+        [e.target.name]: newDate
+      }));
+    };
+  
+    // Loading overlay component
+    const LoadingOverlay = () => (
+      <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  
+    return (
+      <div className="min-h-screen bg-gray-100 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between">
+            <h1 className="text-2xl font-bold">Booking Revenue Dashboard</h1>
+            
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  name="start"
+                  value={dateRange.start}
+                  onChange={handleDateChange}
+                  className="px-4 py-2 border rounded"
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                <input
+                  type="date"
+                  name="end"
+                  value={dateRange.end}
+                  onChange={handleDateChange}
+                  className="px-4 py-2 border rounded"
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                {/* Add Refresh Button */}
+                <button 
+                  onClick={handleRefresh}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                  disabled={isValidating}
+                >
+                  {isValidating ? (
+                    <span className="flex items-center">
+                      <span className="animate-spin mr-2">↻</span>
+                      Refreshing...
+                    </span>
+                  ) : 'Refresh Data'}
+                </button>
+              </div>
+              
+              <select 
+                onChange={(e) => setCurrencyFilter(e.target.value)}
+                className="px-4 py-2 border rounded"
+              >
+                <option value="ALL">All Currencies</option>
+                {currencies?.map(currency => (
+                  <option key={currency} value={currency}>{currency}</option>
+                ))}
+              </select>
+            </div>
+        </div>
+
+        <div className="relative">
+          {isValidating && <LoadingOverlay />}
+          
+          {error ? (
+            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+              Error loading data
+            </div>
+          ) : data ? (
+            <>
+                <RevenueChart data={filteredData} />
+
+                <div className="mt-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredData.map(booking => (
+                        <div key={booking.id} className="p-4 bg-white rounded-lg shadow">
+                            <div className="text-sm text-gray-500">
+                                {new Date(booking.creationDate).toLocaleDateString()}
+                            </div>
+                            <div className="text-lg font-semibold">
+                                {booking.currency} {booking.amount.toFixed(2)}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </>
+          ) : (
+            <div className="p-4 bg-blue-100 text-blue-700 rounded-lg">
+              Initializing dashboard...
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

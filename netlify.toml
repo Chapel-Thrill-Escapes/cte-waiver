@@ -16,3 +16,6 @@
 [[edge_functions]]
   function = "redis"
   path = "/redis"
+[[edge_functions]]
+  path = "/analytics/bookings"
+  function = "booking-analytics"

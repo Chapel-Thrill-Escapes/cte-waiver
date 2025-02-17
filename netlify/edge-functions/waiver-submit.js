@@ -28,12 +28,13 @@ function blobToBase64(blob) {
 
 export default async (request, context) => {
 
-  const originHeader = request.headers.get("origin") || ""; // Get the Origin header from the request
-
-  const allowedOrigin = "https://www.chapelthrillescapes.com";
-  if (originHeader !== allowedOrigin) { 
-    console.log("Waiver Submit: Unauthorized domain");
-    return new Response("Unauthorized", { status: 401 }); // If the Origin doesn’t match the allowed domain, block the request
+  const allowedOrigins = Netlify.env.get("ALLOWED_ORIGINS")?.split(",") || [];
+  const origin = request.headers.get("origin");
+  if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" }
+    });
   }
   
   const corsHeaders = { // If the origin is allowed, set CORS response headers for server responses
