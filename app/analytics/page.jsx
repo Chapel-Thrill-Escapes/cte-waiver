@@ -128,7 +128,7 @@ const fetcher = (url) => fetch(url, {
                                 {new Date(booking.creationDate).toLocaleDateString()}
                             </div>
                             <div className="text-lg font-semibold">
-                                {booking.currency} {booking.amount.toFixed(2)}
+                                {booking.isCanceled} {booking.amount.toFixed(2)}
                             </div>
                         </div>
                     ))}

@@ -56,7 +56,7 @@ export default async (request, context) => {
         id: booking.eventId,
         creationDate: booking.creationTime,
         amount: booking.price.totalNet.amount,
-        isCanceled: booking.canceled === 'true'
+        isCanceled: booking.canceled
       }));
   
       return new Response(JSON.stringify(bookings), {
