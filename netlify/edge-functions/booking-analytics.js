@@ -41,7 +41,8 @@ export default async (request, context) => {
         apiKey: Netlify.env.get("BOOKEO_API_KEY") || "",
         startTime,
         endTime,
-        itemsPerPage: "100"
+        itemsPerPage: "100",
+        includeCanceled: "true" // Include canceled bookings in the API response
       });
   
       const apiResponse = await fetch(`https://api.bookeo.com/v2/bookings?${params}`);
@@ -49,13 +50,13 @@ export default async (request, context) => {
       if (!apiResponse.ok) throw new Error("Bookeo API request failed");
       
       const data = await apiResponse.json();
-      
+
       // Process bookings data
       const bookings = data.data.map(booking => ({
         id: booking.eventId,
         creationDate: booking.creationTime,
         amount: booking.price.totalNet.amount,
-        currency: booking.price.totalNet.currency
+        isCanceled: booking.canceled === 'true'
       }));
   
       return new Response(JSON.stringify(bookings), {

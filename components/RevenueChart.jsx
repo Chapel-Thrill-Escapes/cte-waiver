@@ -14,7 +14,9 @@ const RevenueChart = ({ data }) => {
 
     // Process data to group by date and sum amounts
     const revenueData = data.reduce((acc, booking) => {
-      const date = new Date(booking.creationDate).toLocaleDateString('en-CA');
+      if (booking.isCanceled) return acc; // Skip canceled bookings in revenue calculation
+      
+      const date = new Date(booking.creationDate).toLocaleDateString();
       if (!date) return acc;
       
       acc[date] = (acc[date] || 0) + parseFloat(booking.amount || 0);

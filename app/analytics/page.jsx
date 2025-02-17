@@ -11,7 +11,7 @@ const fetcher = (url) => fetch(url, {
   }).then((res) => res.json());
 
   export default function Home() {
-    const [currencyFilter, setCurrencyFilter] = useState('ALL');
+    const [includeCanceled, setIncludeCanceled] = useState(false);
     const [dateRange, setDateRange] = useState({
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       end: new Date().toISOString().split('T')[0]
@@ -43,11 +43,10 @@ const fetcher = (url) => fetch(url, {
       }));
     };
     
-    const filteredData = currencyFilter === 'ALL' 
-    ? data 
-    : data.filter(booking => booking.currency === currencyFilter);
-    
-    const currencies = [...new Set(data.map(booking => booking.currency))];
+    // Filter data based on cancellation status
+    const filteredData = includeCanceled 
+      ? data 
+      : data?.filter(booking => !booking.isCanceled) || [];
   
     // Loading overlay component
     const LoadingOverlay = () => (
@@ -95,15 +94,19 @@ const fetcher = (url) => fetch(url, {
                 </button>
               </div>
               
-              <select 
-                onChange={(e) => setCurrencyFilter(e.target.value)}
-                className="px-4 py-2 border rounded"
-              >
-                <option value="ALL">All Currencies</option>
-                {currencies?.map(currency => (
-                  <option key={currency} value={currency}>{currency}</option>
-                ))}
-              </select>
+              {/* Replace currency filter with cancellation filter */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="includeCanceled" className="text-sm font-medium">
+                  Include Canceled Bookings:
+                </label>
+                <input
+                  type="checkbox"
+                  id="includeCanceled"
+                  checked={includeCanceled}
+                  onChange={(e) => setIncludeCanceled(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </div>
             </div>
         </div>
 
