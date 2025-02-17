@@ -52,10 +52,10 @@ export default async (request, context) => {
       
       // Process bookings data
       const bookings = data.data.map(booking => ({
-        id: booking.id,
-        creationDate: booking.creationDate,
-        amount: booking.paymentDetails.totalAmount,
-        currency: booking.paymentDetails.currency
+        id: booking.eventId,
+        creationDate: booking.creationTime,
+        amount: booking.price.totalNet.amount,
+        currency: booking.price.totalNet.currency
       }));
   
       return new Response(JSON.stringify(bookings), {

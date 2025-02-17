@@ -6,7 +6,7 @@ import RevenueChart from 'components/RevenueChart';
 
 const fetcher = (url) => fetch(url, {
     headers: {
-      'x-internal-token': Netlify.env.get("INTERNAL_API_TOKEN")
+      'x-internal-token': process.env.INTERNAL_API_TOKEN
     }
   }).then((res) => res.json());
 
@@ -42,6 +42,12 @@ const fetcher = (url) => fetch(url, {
         [e.target.name]: newDate
       }));
     };
+    
+    const filteredData = currencyFilter === 'ALL' 
+    ? data 
+    : data.filter(booking => booking.currency === currencyFilter);
+    
+    const currencies = [...new Set(data.map(booking => booking.currency))];
   
     // Loading overlay component
     const LoadingOverlay = () => (
