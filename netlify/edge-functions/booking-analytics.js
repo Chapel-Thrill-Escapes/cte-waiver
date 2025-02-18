@@ -27,7 +27,8 @@ export default async (request, context) => {
         itemsPerPage: "100",
         includeCanceled: "true" // Include canceled bookings in the API response
       });
-  
+
+      console.log(`https://api.bookeo.com/v2/bookings?${params}`);
       const apiResponse = await fetch(`https://api.bookeo.com/v2/bookings?${params}`);
       
       if (!apiResponse.ok) throw new Error(`Bookeo request failed: ${apiResponse.statusText}`);
