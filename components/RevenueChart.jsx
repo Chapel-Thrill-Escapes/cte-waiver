@@ -90,7 +90,7 @@ const RevenueChart = ({ data }) => {
       },
       grid: {
         row: {
-          colors: ['#f3f4f6', '#fff'],
+          colors: ['#000000', '#000000'],
           opacity: 0.5
         }
       },

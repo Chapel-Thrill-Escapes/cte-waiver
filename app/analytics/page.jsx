@@ -117,19 +117,6 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
           ) : data ? (
             <>
                 <RevenueChart data={filteredData} />
-
-                <div className="mt-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredData.map(booking => (
-                        <div key={booking.id} className="p-4 rounded-lg shadow">
-                            <div className="text-sm text-gray-500">
-                                {new Date(booking.creationDate).toLocaleDateString()}
-                            </div>
-                            <div className="text-neutral-600 font-semibold">
-                                {booking.isCanceled} {booking.amount}
-                            </div>
-                        </div>
-                    ))}
-                </div>
             </>
           ) : (
             <div className="p-4 text-primary rounded-lg">
