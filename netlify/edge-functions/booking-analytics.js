@@ -2,15 +2,7 @@
 
 export default async (request, context) => {
     // Security checks
-    //const authToken = request.headers.get('x-internal-token');
-    //const expectedToken = Netlify.env.get("INTERNAL_API_TOKEN");
-  
-    //if (!authToken || authToken !== expectedToken) {
-    //  return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    //    status: 401,
-    //    headers: { "Content-Type": "application/json" }
-    //  });
-    //}
+
 
     // Verify origin
     const allowedOrigins = Netlify.env.get("ALLOWED_ORIGINS")?.split(",") || [];
