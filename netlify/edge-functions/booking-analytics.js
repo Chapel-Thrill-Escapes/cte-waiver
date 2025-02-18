@@ -30,7 +30,7 @@ export default async (request, context) => {
   
       const apiResponse = await fetch(`https://api.bookeo.com/v2/bookings?${params}`);
       
-      if (!apiResponse.ok) throw new Error("Bookeo API request failed");
+      if (!apiResponse.ok) throw new Error(`Bookeo request failed: ${apiResponse.statusText}`);
       
       const data = await apiResponse.json();
 
@@ -50,7 +50,7 @@ export default async (request, context) => {
       });
   
     } catch (error) {
-      console.error('Edge Function Error:', error);
+      console.error('Edge Function Error;', error);
       return new Response(JSON.stringify({ error: "Failed to fetch bookings" }), {
         status: 500,
         headers: { "Content-Type": "application/json" }
