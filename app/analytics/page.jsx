@@ -53,10 +53,10 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
     );
   
     return (
-      <div className="min-h-screen bg-gray-100 p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between">
-            <h1 className="text-2xl font-bold">Booking Revenue Dashboard</h1>
+            <h1 className="text-2xl text-primary">Booking Revenue Dashboard</h1>
             
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex gap-2">
@@ -125,14 +125,14 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
                                 {new Date(booking.creationDate).toLocaleDateString()}
                             </div>
                             <div className="text-lg font-semibold">
-                                {booking.isCanceled} {booking.amount.toFixed(2)}
+                                {booking.isCanceled} {booking.amount}
                             </div>
                         </div>
                     ))}
                 </div>
             </>
           ) : (
-            <div className="p-4 bg-blue-100 text-blue-700 rounded-lg">
+            <div className="p-4 text-primary rounded-lg">
               Initializing dashboard...
             </div>
           )}
