@@ -2,7 +2,8 @@
 
 export default async (request, context) => {
     // Security checks
-    const authToken = request.headers.get('x-internal-token');
+    const url = new URL(request.url);
+    const authToken = url.searchParams.get('apiToken');
     const expectedToken = Netlify.env.get("INTERNAL_API_TOKEN");
   
     if (!authToken || authToken !== expectedToken) {
@@ -24,7 +25,6 @@ export default async (request, context) => {
     }
   
     // Validate date parameters
-    const url = new URL(request.url);
     const startTime = url.searchParams.get('startTime');
     const endTime = url.searchParams.get('endTime');
   
