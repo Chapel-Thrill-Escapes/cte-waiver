@@ -127,13 +127,13 @@ const RevenueChart = ({ data }) => {
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
+    <div className="p-4 rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">Booking Revenue</h2>
       {typeof window !== 'undefined' && (
         <Chart
           options={chartOptions}
           series={chartSeries}
-          type="bar"
+          type="line"
           height={400}
           className="apexcharts-canvas"
         />
