@@ -4,7 +4,12 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import RevenueChart from 'components/RevenueChart';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const apiToken = process.env.NEXT_PUBLIC_INTERNAL_API_TOKEN;
+const fetcher = (url) => fetch(url, {
+    headers: {
+      'x-internal-token': apiToken
+    }
+  }).then((res) => res.json());
 
   export default function Home() {
     const [includeCanceled, setIncludeCanceled] = useState(false);
@@ -12,10 +17,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       end: new Date().toISOString().split('T')[0]
     });
-    
-    const apiToken = process.env.INTERNAL_API_TOKEN;
+  
     const { data, error, isValidating, mutate } = useSWR(
-      `/analytics/bookings?startTime=${dateRange.start}T00:00:00Z&endTime=${dateRange.end}T23:59:59Z?apiToken=${apiToken}`,
+      `/analytics/bookings?startTime=${dateRange.start}T00:00:00Z&endTime=${dateRange.end}T23:59:59Z`,
       fetcher,
       { 
         refreshInterval: 300000,
