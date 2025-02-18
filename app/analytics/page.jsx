@@ -4,7 +4,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import RevenueChart from 'components/RevenueChart';
 
-const apiToken = process.env.NEXT_PUBLIC_INTERNAL_API_TOKEN;
+const apiToken = process.env.NEXT_PUBLIC_API_TOKEN;
 const fetcher = (url) => fetch(url, {
     headers: {
       'x-internal-token': apiToken
