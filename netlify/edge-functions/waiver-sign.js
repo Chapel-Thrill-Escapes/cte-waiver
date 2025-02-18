@@ -25,7 +25,7 @@ export default async (request, context) => {
   }
     
   const corsHeaders = { // If the origin is allowed, set CORS response headers for server responses
-      "Access-Control-Allow-Origin": allowedOrigin,
+      "Access-Control-Allow-Origin": origin,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization"
   };
