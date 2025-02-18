@@ -4,16 +4,7 @@ export default async (request, context) => {
     // Security checks
 
 
-    // Verify origin
-    const allowedOrigins = Netlify.env.get("ALLOWED_ORIGINS")?.split(",") || [];
-    const origin = request.headers.get("origin");
-    
-    if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
-        return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" }
-        });
-    }
+
   
     // Validate date parameters
     const url = new URL(request.url);
